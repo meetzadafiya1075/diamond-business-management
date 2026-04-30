@@ -83,4 +83,5 @@ export const authApi = {
     method: 'POST',
     body: JSON.stringify(data),
   }),
+  deleteUser: (id: number) => fetchWithAuth(`/auth/users/${id}/`, { method: 'DELETE' }),
 }
