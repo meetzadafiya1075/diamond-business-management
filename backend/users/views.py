@@ -12,8 +12,8 @@ class SignupView(generics.CreateAPIView):
     permission_classes = [AllowAny]
 
     def perform_create(self, serializer):
-        # If this is the first user in the database, make them an ADMIN
-        if not User.objects.exists():
+        # If there are no admins in the system yet, make this user an ADMIN
+        if not User.objects.filter(role='ADMIN').exists():
             serializer.save(role='ADMIN', is_staff=True, is_superuser=True)
         else:
             serializer.save(role='WORKER')
