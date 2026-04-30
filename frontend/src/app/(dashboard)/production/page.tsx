@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
+import { Trash2 } from "lucide-react"
 
 export default function ProductionPage() {
   const [jobs, setJobs] = useState<any[]>([])
@@ -49,6 +50,16 @@ export default function ProductionPage() {
       console.error("Failed to load production data", err)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleDeleteJob = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this production job?")) return
+    try {
+      await coreApi.deleteProductionJob(id)
+      loadData()
+    } catch (err) {
+      console.error("Delete failed", err)
     }
   }
 
@@ -161,11 +172,12 @@ export default function ProductionPage() {
                 <TableHead>Current Stage</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Assigned Date</TableHead>
+                <TableHead className="text-right">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {jobs.length === 0 ? (
-                <TableRow><TableCell colSpan={6} className="text-center">No active jobs found.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={7} className="text-center">No active jobs found.</TableCell></TableRow>
               ) : jobs.map((job) => (
                 <TableRow key={job.id}>
                   <TableCell className="font-medium">#{job.id}</TableCell>
@@ -180,6 +192,16 @@ export default function ProductionPage() {
                     </Badge>
                   </TableCell>
                   <TableCell>{job.assigned_date ? new Date(job.assigned_date).toLocaleDateString() : 'N/A'}</TableCell>
+                  <TableCell className="text-right">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                      onClick={() => handleDeleteJob(job.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

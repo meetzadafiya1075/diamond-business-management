@@ -48,6 +48,7 @@ export const coreApi = {
   getProductionJobs: () => fetchWithAuth('/core/production-jobs/'),
   createProductionJob: (data: any) => fetchWithAuth('/core/production-jobs/', { method: 'POST', body: JSON.stringify(data) }),
   updateProductionJob: (id: number, data: any) => fetchWithAuth(`/core/production-jobs/${id}/`, { method: 'PATCH', body: JSON.stringify(data) }),
+  deleteProductionJob: (id: number) => fetchWithAuth(`/core/production-jobs/${id}/`, { method: 'DELETE' }),
 
   // Phase 2
   getYieldReports: () => fetchWithAuth('/core/yield-reports/'),
