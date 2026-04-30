@@ -28,6 +28,6 @@ class SignupSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(
             username=validated_data['username'],
             password=validated_data['password'],
-            role='WORKER' # Default role for public signups
+            role=validated_data.get('role', 'WORKER')
         )
         return user
