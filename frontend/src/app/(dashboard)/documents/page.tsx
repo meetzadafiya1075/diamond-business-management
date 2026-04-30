@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { businessApi, API_BASE_URL } from "@/lib/api"
 import { useRouter } from "next/navigation"
+import { Trash2 } from "lucide-react"
 
 import { 
   Dialog, 
