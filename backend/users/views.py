@@ -11,6 +11,13 @@ class SignupView(generics.CreateAPIView):
     serializer_class = SignupSerializer
     permission_classes = [AllowAny]
 
+    def perform_create(self, serializer):
+        # If this is the first user in the database, make them an ADMIN
+        if not User.objects.exists():
+            serializer.save(role='ADMIN', is_staff=True, is_superuser=True)
+        else:
+            serializer.save(role='WORKER')
+
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
