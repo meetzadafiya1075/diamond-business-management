@@ -6,6 +6,8 @@ from .serializers import (
     QuotationSerializer, TransactionSerializer, ExpenseSerializer, DocumentSerializer
 )
 
+from users.permissions import IsAdminRole
+
 class BrokerViewSet(viewsets.ModelViewSet):
     queryset = Broker.objects.all()
     serializer_class = BrokerSerializer
@@ -14,7 +16,11 @@ class BrokerViewSet(viewsets.ModelViewSet):
 class BuyerViewSet(viewsets.ModelViewSet):
     queryset = Buyer.objects.all()
     serializer_class = BuyerSerializer
-    permission_classes = [IsAuthenticated]
+    
+    def get_permissions(self):
+        if self.action in ['create', 'destroy', 'update', 'partial_update']:
+            return [IsAdminRole()]
+        return [IsAuthenticated()]
 
 class InquiryViewSet(viewsets.ModelViewSet):
     queryset = Inquiry.objects.all()
@@ -24,7 +30,11 @@ class InquiryViewSet(viewsets.ModelViewSet):
 class QuotationViewSet(viewsets.ModelViewSet):
     queryset = Quotation.objects.all()
     serializer_class = QuotationSerializer
-    permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        if self.action in ['create', 'destroy', 'update', 'partial_update']:
+            return [IsAdminRole()]
+        return [IsAuthenticated()]
 
 class TransactionViewSet(viewsets.ModelViewSet):
     queryset = Transaction.objects.all()
