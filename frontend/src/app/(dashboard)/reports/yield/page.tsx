@@ -16,11 +16,12 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { BarChart3, Plus, Trash2, TrendingUp } from "lucide-react"
+import { BarChart3, Plus, Trash2, TrendingUp, Sparkles } from "lucide-react"
 
 export default function YieldReportPage() {
   const [reports, setReports] = useState<any[]>([])
   const [parcels, setParcels] = useState<any[]>([])
+  const [stones, setStones] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
@@ -34,17 +35,25 @@ export default function YieldReportPage() {
 
   const loadData = async () => {
     try {
-      const [reportData, parcelData] = await Promise.all([
+      const [reportData, parcelData, stoneData] = await Promise.all([
         coreApi.getYieldReports(),
-        coreApi.getRoughParcels()
+        coreApi.getRoughParcels(),
+        coreApi.getPolishedStones()
       ])
       setReports(Array.isArray(reportData) ? reportData : reportData.results || [])
       setParcels(Array.isArray(parcelData) ? parcelData : parcelData.results || [])
+      setStones(Array.isArray(stoneData) ? stoneData : stoneData.results || [])
     } catch (err) {
       console.error("Failed to load reports", err)
     } finally {
       setLoading(false)
     }
+  }
+
+  const autoCalculateWeight = (parcelId: string) => {
+    const parcelStones = stones.filter(s => s.source_parcel && s.source_parcel.toString() === parcelId)
+    const totalWeight = parcelStones.reduce((sum, s) => sum + parseFloat(s.carat_weight || 0), 0)
+    setPolishedWeight(totalWeight.toFixed(3))
   }
 
   const handleGenerateReport = async (e: React.FormEvent) => {
@@ -101,7 +110,10 @@ export default function YieldReportPage() {
             <form onSubmit={handleGenerateReport} className="space-y-4">
               <div className="space-y-2">
                 <Label>Select Finished Parcel</Label>
-                <Select value={selectedParcelId} onValueChange={(val: string | null) => setSelectedParcelId(val || "")}>
+                <Select value={selectedParcelId} onValueChange={(val: string | null) => {
+                  setSelectedParcelId(val || "")
+                  if (val) autoCalculateWeight(val)
+                }}>
                   <SelectTrigger>
                     <SelectValue placeholder="Choose parcel" />
                   </SelectTrigger>
@@ -115,7 +127,17 @@ export default function YieldReportPage() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Final Polished Weight (ct)</Label>
+                <div className="flex justify-between">
+                  <Label>Final Polished Weight (ct)</Label>
+                  <Button 
+                    type="button" 
+                    variant="ghost" 
+                    className="h-6 text-xs text-blue-600 gap-1"
+                    onClick={() => autoCalculateWeight(selectedParcelId)}
+                  >
+                    <Sparkles className="h-3 w-3" /> Auto-sum from Inventory
+                  </Button>
+                </div>
                 <Input 
                   type="number" 
                   step="0.001" 
