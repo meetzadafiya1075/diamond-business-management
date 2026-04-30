@@ -41,6 +41,14 @@ export const coreApi = {
   
   getParcelTracking: () => fetchWithAuth('/core/parcel-tracking/'),
   
+  getPlanningRecords: () => fetchWithAuth('/core/planning-records/'),
+  createPlanningRecord: (data: any) => fetchWithAuth('/core/planning-records/', { method: 'POST', body: JSON.stringify(data) }),
+  deletePlanningRecord: (id: number) => fetchWithAuth(`/core/planning-records/${id}/`, { method: 'DELETE' }),
+
+  getProductionJobs: () => fetchWithAuth('/core/production-jobs/'),
+  createProductionJob: (data: any) => fetchWithAuth('/core/production-jobs/', { method: 'POST', body: JSON.stringify(data) }),
+  updateProductionJob: (id: number, data: any) => fetchWithAuth(`/core/production-jobs/${id}/`, { method: 'PATCH', body: JSON.stringify(data) }),
+
   // Phase 2
   getYieldReports: () => fetchWithAuth('/core/yield-reports/'),
   getPolishedStones: () => fetchWithAuth('/core/polished-stones/'),
