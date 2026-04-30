@@ -105,7 +105,7 @@ export default function PlanningPage() {
             <form onSubmit={handleAssignPlanning} className="space-y-4">
               <div className="space-y-2">
                 <Label>Select Rough Parcel</Label>
-                <Select value={selectedParcel} onValueChange={setSelectedParcel}>
+                <Select value={selectedParcel} onValueChange={(val: string | null) => setSelectedParcel(val || "")}>
                   <SelectTrigger>
                     <SelectValue placeholder="Choose parcel" />
                   </SelectTrigger>
@@ -120,7 +120,7 @@ export default function PlanningPage() {
               </div>
               <div className="space-y-2">
                 <Label>Assign Planner</Label>
-                <Select value={selectedPlanner} onValueChange={setSelectedPlanner}>
+                <Select value={selectedPlanner} onValueChange={(val: string | null) => setSelectedPlanner(val || "")}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select planner" />
                   </SelectTrigger>
