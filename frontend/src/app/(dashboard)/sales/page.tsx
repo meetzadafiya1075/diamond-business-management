@@ -79,8 +79,7 @@ export default function SalesCRMPage() {
       await businessApi.createQuotation({
         buyer: selectedBuyer,
         stone: selectedStone,
-        offered_price_per_carat: offeredPrice,
-        terms_and_conditions: terms,
+        proposed_price: offeredPrice,
         status: 'PENDING'
       })
       setIsQuoteDialogOpen(false)
@@ -226,7 +225,7 @@ export default function SalesCRMPage() {
                   <TableRow key={q.id}>
                     <TableCell className="font-medium">{q.buyer_name || `Buyer #${q.buyer}`}</TableCell>
                     <TableCell>{q.stone_id || `Stone #${q.stone}`}</TableCell>
-                    <TableCell className="text-right">${q.offered_price_per_carat}</TableCell>
+                    <TableCell className="text-right">${q.proposed_price}</TableCell>
                     <TableCell className="text-right">
                       <Button 
                         variant="ghost" 
