@@ -20,8 +20,16 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
+@api_view(['GET'])
+def api_root(request):
+    return Response({"status": "ok", "message": "Diamond ERP API is live"})
 
 urlpatterns = [
+    path('', api_root),
+    path('api/', api_root),
     path('admin/', admin.site.urls),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
