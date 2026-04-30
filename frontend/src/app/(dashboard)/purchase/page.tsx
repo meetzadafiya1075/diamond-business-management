@@ -90,7 +90,9 @@ export default function RoughPurchasePage() {
       setIsParcelDialogOpen(false)
       loadData()
     } catch (err: any) {
-      alert(`Failed to add parcel: ${err.message || "Please check all fields"}`)
+      console.error("Failed to add parcel", err)
+      const errorMsg = err.message || "Please check if the parcel name is unique and all fields are filled."
+      alert(`Failed to add parcel: ${errorMsg}`)
     }
   }
 
