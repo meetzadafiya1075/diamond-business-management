@@ -52,6 +52,8 @@ export const coreApi = {
 
   // Phase 2
   getYieldReports: () => fetchWithAuth('/core/yield-reports/'),
+  createYieldReport: (data: any) => fetchWithAuth('/core/yield-reports/', { method: 'POST', body: JSON.stringify(data) }),
+  deleteYieldReport: (id: number) => fetchWithAuth(`/core/yield-reports/${id}/`, { method: 'DELETE' }),
   getPolishedStones: () => fetchWithAuth('/core/polished-stones/'),
   createPolishedStone: (data: any) => fetchWithAuth('/core/polished-stones/', { method: 'POST', body: JSON.stringify(data) }),
   deletePolishedStone: (id: number) => fetchWithAuth(`/core/polished-stones/${id}/`, { method: 'DELETE' }),
