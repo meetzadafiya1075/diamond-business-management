@@ -156,7 +156,7 @@ export default function AccountsPage() {
               <form onSubmit={handleCreateTransaction} className="space-y-4">
                 <div className="space-y-2">
                   <Label>Type</Label>
-                  <Select value={txType} onValueChange={setTxType}>
+                  <Select value={txType} onValueChange={(val: string | null) => setTxType(val || "PAYABLE")}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
