@@ -6,12 +6,23 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { businessApi } from "@/lib/api"
 import { useRouter } from "next/navigation"
+import { Trash2 } from "lucide-react"
 
 export default function SalesCRMPage() {
   const [buyers, setBuyers] = useState<any[]>([])
   const [quotations, setQuotations] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const router = useRouter()
+
+  const handleDeleteBuyer = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this buyer?")) return
+    try {
+      await businessApi.deleteBuyer(id)
+      loadData()
+    } catch (err) {
+      console.error("Delete failed", err)
+    }
+  }
 
   useEffect(() => {
     loadData()
@@ -102,11 +113,12 @@ export default function SalesCRMPage() {
                     <TableHead>Company</TableHead>
                     <TableHead>Contact</TableHead>
                     <TableHead>KYC</TableHead>
+                    <TableHead className="text-right">Action</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {buyers.length === 0 ? (
-                    <TableRow><TableCell colSpan={3} className="text-center">No buyers found.</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={4} className="text-center">No buyers found.</TableCell></TableRow>
                   ) : buyers.map((b) => (
                     <TableRow key={b.id}>
                       <TableCell className="font-medium">{b.company_name}</TableCell>
@@ -117,6 +129,16 @@ export default function SalesCRMPage() {
                         ) : (
                           <Badge variant="outline" className="text-orange-600 border-orange-600">Pending</Badge>
                         )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                          onClick={() => handleDeleteBuyer(b.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}

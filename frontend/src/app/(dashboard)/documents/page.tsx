@@ -56,6 +56,16 @@ export default function DocumentsPage() {
     }
   }
 
+  const handleDeleteDocument = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this document?")) return
+    try {
+      await businessApi.deleteDocument(id)
+      loadData()
+    } catch (err) {
+      console.error("Delete failed", err)
+    }
+  }
+
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!file) return
@@ -183,13 +193,21 @@ export default function DocumentsPage() {
                       <Badge variant="outline">{doc.document_type}</Badge>
                     </TableCell>
                     <TableCell>{new Date(doc.uploaded_at).toLocaleString()}</TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-right flex justify-end gap-2">
                       <Button 
                         variant="ghost" 
                         size="sm"
                         onClick={() => handleDownload(doc.file)}
                       >
                         Download
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                        onClick={() => handleDeleteDocument(doc.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     </TableCell>
                   </TableRow>

@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { coreApi } from "@/lib/api"
 import { useRouter } from "next/navigation"
 import { useCurrency } from "@/hooks/useCurrency"
+import { Trash2 } from "lucide-react"
 
 export default function RoughPurchasePage() {
   const { symbol } = useCurrency()
@@ -52,6 +53,16 @@ export default function RoughPurchasePage() {
     loadData()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  const handleDeleteParcel = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this parcel?")) return
+    try {
+      await coreApi.deleteRoughParcel(id)
+      loadData()
+    } catch (err) {
+      console.error("Delete failed", err)
+    }
+  }
 
   const handleAddSupplier = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -179,11 +190,12 @@ export default function RoughPurchasePage() {
                   <TableHead className="text-right">Weight (ct)</TableHead>
                   <TableHead className="text-right">Cost / ct</TableHead>
                   <TableHead className="text-right">Total Cost</TableHead>
+                  <TableHead className="text-right">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {parcels.length === 0 ? (
-                  <TableRow><TableCell colSpan={6} className="text-center">No purchases found.</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={7} className="text-center">No purchases found.</TableCell></TableRow>
                 ) : parcels.map((p) => (
                   <TableRow key={p.id}>
                     <TableCell className="font-medium">{p.parcel_name}</TableCell>
@@ -192,6 +204,16 @@ export default function RoughPurchasePage() {
                     <TableCell className="text-right">{p.carat_weight}</TableCell>
                     <TableCell className="text-right">{symbol}{p.cost_per_carat}</TableCell>
                     <TableCell className="text-right">{symbol}{p.total_cost}</TableCell>
+                    <TableCell className="text-right">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                        onClick={() => handleDeleteParcel(p.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

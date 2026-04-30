@@ -33,9 +33,11 @@ export async function fetchWithAuth(endpoint: string, options: RequestInit = {})
 export const coreApi = {
   getSuppliers: () => fetchWithAuth('/core/suppliers/'),
   createSupplier: (data: any) => fetchWithAuth('/core/suppliers/', { method: 'POST', body: JSON.stringify(data) }),
+  deleteSupplier: (id: number) => fetchWithAuth(`/core/suppliers/${id}/`, { method: 'DELETE' }),
   
   getRoughParcels: () => fetchWithAuth('/core/rough-parcels/'),
   createRoughParcel: (data: any) => fetchWithAuth('/core/rough-parcels/', { method: 'POST', body: JSON.stringify(data) }),
+  deleteRoughParcel: (id: number) => fetchWithAuth(`/core/rough-parcels/${id}/`, { method: 'DELETE' }),
   
   getParcelTracking: () => fetchWithAuth('/core/parcel-tracking/'),
   
@@ -47,6 +49,8 @@ export const coreApi = {
 export const businessApi = {
   getBrokers: () => fetchWithAuth('/business/brokers/'),
   getBuyers: () => fetchWithAuth('/business/buyers/'),
+  createBuyer: (data: any) => fetchWithAuth('/business/buyers/', { method: 'POST', body: JSON.stringify(data) }),
+  deleteBuyer: (id: number) => fetchWithAuth(`/business/buyers/${id}/`, { method: 'DELETE' }),
   getInquiries: () => fetchWithAuth('/business/inquiries/'),
   getQuotations: () => fetchWithAuth('/business/quotations/'),
   getTransactions: () => fetchWithAuth('/business/transactions/'),
@@ -56,6 +60,7 @@ export const businessApi = {
     method: 'POST',
     body: formData,
   }),
+  deleteDocument: (id: number) => fetchWithAuth(`/business/documents/${id}/`, { method: 'DELETE' }),
   
   // Phase 4
   getAnalytics: () => fetchWithAuth('/business/dashboard/analytics/'),
