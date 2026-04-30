@@ -41,12 +41,16 @@ export default function PlanningPage() {
         coreApi.getRoughParcels(),
         authApi.getUsers()
       ])
-      setPlans(planData)
-      setParcels(parcelData)
-      // Filter users who are planners
-      setPlanners(userData.filter((u: any) => u.role === 'PLANNER' || u.role === 'ADMIN'))
+      
+      // Handle both direct array and paginated results
+      setPlans(Array.isArray(planData) ? planData : planData.results || [])
+      setParcels(Array.isArray(parcelData) ? parcelData : parcelData.results || [])
+      
+      const allUsers = Array.isArray(userData) ? userData : userData.results || []
+      // For now, allow any user to be a planner to avoid empty lists for new setups
+      setPlanners(allUsers)
     } catch (err) {
-      console.error(err)
+      console.error("Failed to load planning data", err)
     } finally {
       setLoading(false)
     }
@@ -110,7 +114,9 @@ export default function PlanningPage() {
                     <SelectValue placeholder="Choose parcel" />
                   </SelectTrigger>
                   <SelectContent>
-                    {parcels.map(p => (
+                    {parcels.length === 0 ? (
+                      <SelectItem value="none" disabled>No parcels available. Add some in Rough Purchase.</SelectItem>
+                    ) : parcels.map(p => (
                       <SelectItem key={p.id} value={p.id.toString()}>
                         {p.parcel_name} ({p.carat_weight} ct)
                       </SelectItem>
@@ -125,7 +131,9 @@ export default function PlanningPage() {
                     <SelectValue placeholder="Select planner" />
                   </SelectTrigger>
                   <SelectContent>
-                    {planners.map(u => (
+                    {planners.length === 0 ? (
+                      <SelectItem value="none" disabled>No users found.</SelectItem>
+                    ) : planners.map(u => (
                       <SelectItem key={u.id} value={u.id.toString()}>{u.username}</SelectItem>
                     ))}
                   </SelectContent>
