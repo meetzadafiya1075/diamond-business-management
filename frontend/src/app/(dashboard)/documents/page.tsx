@@ -7,10 +7,35 @@ import { Badge } from "@/components/ui/badge"
 import { businessApi } from "@/lib/api"
 import { useRouter } from "next/navigation"
 
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger,
+  DialogFooter
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select"
+
 export default function DocumentsPage() {
   const [documents, setDocuments] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [isUploading, setIsUploading] = useState(false)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
   const router = useRouter()
+
+  // Form state
+  const [title, setTitle] = useState("")
+  const [type, setType] = useState("INVOICE")
+  const [file, setFile] = useState<File | null>(null)
 
   useEffect(() => {
     loadData()
@@ -31,6 +56,30 @@ export default function DocumentsPage() {
     }
   }
 
+  const handleUpload = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!file) return
+
+    setIsUploading(true)
+    const formData = new FormData()
+    formData.append('title', title)
+    formData.append('document_type', type)
+    formData.append('file', file)
+
+    try {
+      await businessApi.createDocument(formData)
+      setIsDialogOpen(false)
+      setTitle("")
+      setFile(null)
+      loadData()
+    } catch (err) {
+      console.error("Upload failed", err)
+      alert("Failed to upload document")
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex justify-between items-center">
@@ -38,7 +87,57 @@ export default function DocumentsPage() {
           <h1 className="text-3xl font-bold tracking-tight">Document Vault</h1>
           <p className="text-muted-foreground mt-2">Centralized storage for invoices, certificates, and KYC.</p>
         </div>
-        <Button>+ Upload Document</Button>
+        
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>+ Upload Document</Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Upload New Document</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleUpload} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="title">Document Title</Label>
+                <Input 
+                  id="title" 
+                  placeholder="e.g. Rough Purchase Invoice #102" 
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="type">Category</Label>
+                <Select value={type} onOpenChange={() => {}} onValueChange={(val: any) => setType(val)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="INVOICE">Invoice</SelectItem>
+                    <SelectItem value="CERTIFICATE">Certificate</SelectItem>
+                    <SelectItem value="KYC">KYC Document</SelectItem>
+                    <SelectItem value="OTHER">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="file">File</Label>
+                <Input 
+                  id="file" 
+                  type="file" 
+                  onChange={(e) => setFile(e.target.files?.[0] || null)}
+                  required
+                />
+              </div>
+              <DialogFooter>
+                <Button type="submit" disabled={isUploading}>
+                  {isUploading ? "Uploading..." : "Start Upload"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <Card>

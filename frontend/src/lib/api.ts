@@ -8,7 +8,10 @@ export async function fetchWithAuth(endpoint: string, options: RequestInit = {})
   const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null
   
   const headers = new Headers(options.headers || {})
-  headers.set('Content-Type', 'application/json')
+  
+  if (!(options.body instanceof FormData)) {
+    headers.set('Content-Type', 'application/json')
+  }
   
   if (token) {
     headers.set('Authorization', `Bearer ${token}`)
@@ -49,6 +52,10 @@ export const businessApi = {
   getTransactions: () => fetchWithAuth('/business/transactions/'),
   getExpenses: () => fetchWithAuth('/business/expenses/'),
   getDocuments: () => fetchWithAuth('/business/documents/'),
+  createDocument: (formData: FormData) => fetchWithAuth('/business/documents/', {
+    method: 'POST',
+    body: formData,
+  }),
   
   // Phase 4
   getAnalytics: () => fetchWithAuth('/business/dashboard/analytics/'),

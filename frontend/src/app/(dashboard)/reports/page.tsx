@@ -2,17 +2,35 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 
+import { coreApi } from "@/lib/api"
+
 export default function ReportsPage() {
-  const handleDownloadCSV = () => {
-    // Generate simple mock CSV data
-    const csvContent = "data:text/csv;charset=utf-8,Job ID,Yield %,Breakage (ct)\nJ-001,39.5,1.2\nJ-002,41.0,0.5\nJ-003,38.2,2.1";
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "yield_summary_report.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const handleDownloadCSV = async () => {
+    try {
+      const data = await coreApi.getYieldReports()
+      if (data.length === 0) {
+        alert("No yield data available to generate report.")
+        return
+      }
+
+      // Generate CSV from real data
+      const headers = "ID,Parcel,Polished (ct),Breakage (ct),Wastage (ct),Yield %\n"
+      const rows = data.map((r: any) => 
+        `${r.id},${r.parcel_name},${r.final_polished_carats},${r.breakage_carats},${r.wastage_carats},${r.yield_percentage}`
+      ).join("\n")
+      
+      const csvContent = "data:text/csv;charset=utf-8," + headers + rows
+      const encodedUri = encodeURI(csvContent)
+      const link = document.createElement("a")
+      link.setAttribute("href", encodedUri)
+      link.setAttribute("download", `yield_report_${new Date().toISOString().split('T')[0]}.csv`)
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    } catch (err) {
+      console.error("Failed to generate report", err)
+      alert("Error generating report")
+    }
   }
 
   const handleDownloadPDF = () => {
