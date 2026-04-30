@@ -40,6 +40,7 @@ class RoughParcelSerializer(serializers.ModelSerializer):
 
 class YieldReportSerializer(serializers.ModelSerializer):
     parcel_name = serializers.CharField(source='parcel.parcel_name', read_only=True)
+    rough_weight = serializers.DecimalField(source='parcel.carat_weight', max_digits=10, decimal_places=3, read_only=True)
     
     class Meta:
         model = YieldReport

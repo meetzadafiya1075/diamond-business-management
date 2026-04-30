@@ -69,10 +69,9 @@ export default function YieldReportPage() {
     try {
       await coreApi.createYieldReport({
         parcel: selectedParcelId,
-        rough_weight: rough,
-        polished_weight: polished,
-        yield_percentage: yieldPct.toFixed(2),
-        loss_weight: loss.toFixed(3)
+        final_polished_carats: polished,
+        breakage_carats: 0,
+        wastage_carats: 0
       })
       setIsDialogOpen(false)
       loadData()
@@ -194,13 +193,15 @@ export default function YieldReportPage() {
                 <TableRow key={report.id}>
                   <TableCell className="font-medium">{report.parcel_name || `Parcel #${report.parcel}`}</TableCell>
                   <TableCell className="text-right">{report.rough_weight}</TableCell>
-                  <TableCell className="text-right">{report.polished_weight}</TableCell>
+                  <TableCell className="text-right">{report.final_polished_carats}</TableCell>
                   <TableCell className="text-right">
                     <Badge variant={parseFloat(report.yield_percentage) > 40 ? 'default' : 'secondary'}>
                       {report.yield_percentage}%
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-right text-red-600">-{report.loss_weight}</TableCell>
+                  <TableCell className="text-right text-red-600">
+                    -{(parseFloat(report.rough_weight) - parseFloat(report.final_polished_carats)).toFixed(3)}
+                  </TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="icon" className="text-red-500" onClick={() => handleDeleteReport(report.id)}>
                       <Trash2 className="h-4 w-4" />
