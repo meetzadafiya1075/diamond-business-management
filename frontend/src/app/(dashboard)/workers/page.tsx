@@ -5,11 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 
 export default function WorkerManagementPage() {
-  const [workers, setWorkers] = useState([
-    { id: "W-01", name: "Mike S.", skills: "Sawing, Lasering", activeTask: "J-501 (Sawing)", efficiency: "98.5%" },
-    { id: "W-02", name: "Anna K.", skills: "Polishing", activeTask: "J-502 (Polishing)", efficiency: "102.0%" },
-    { id: "W-03", name: "Raj P.", skills: "Marking", activeTask: "None", efficiency: "95.0%" },
-  ])
+  const [workers, setWorkers] = useState([])
 
   return (
     <div className="flex flex-col gap-6">

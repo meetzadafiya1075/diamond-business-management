@@ -44,8 +44,8 @@ export default function YieldPage() {
             <CardTitle className="text-sm font-medium">Average Yield</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">39.2%</div>
-            <p className="text-xs text-muted-foreground">+0.5% from last week</p>
+            <div className="text-2xl font-bold">0%</div>
+            <p className="text-xs text-muted-foreground">Waiting for production data</p>
           </CardContent>
         </Card>
         <Card>
@@ -53,8 +53,8 @@ export default function YieldPage() {
             <CardTitle className="text-sm font-medium">Total Breakage</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-500">12.5 ct</div>
-            <p className="text-xs text-muted-foreground">Across all active jobs</p>
+            <div className="text-2xl font-bold text-red-500">0 ct</div>
+            <p className="text-xs text-muted-foreground">No active jobs</p>
           </CardContent>
         </Card>
         <Card>
@@ -62,8 +62,8 @@ export default function YieldPage() {
             <CardTitle className="text-sm font-medium">Polished Output</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">4,250 ct</div>
-            <p className="text-xs text-muted-foreground">This month</p>
+            <div className="text-2xl font-bold text-green-600">0 ct</div>
+            <p className="text-xs text-muted-foreground">No output recorded</p>
           </CardContent>
         </Card>
       </div>

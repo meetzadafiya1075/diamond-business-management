@@ -6,10 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 
 export default function ProductionPage() {
-  const [jobs, setJobs] = useState([
-    { id: "J-501", parcel: "P-1002", stage: "SAWING", worker: "Mike S.", status: "IN_PROGRESS", dueDate: "2026-05-02" },
-    { id: "J-502", parcel: "P-1005", stage: "POLISHING", worker: "Anna K.", status: "PENDING", dueDate: "2026-05-05" },
-  ])
+  const [jobs, setJobs] = useState([])
 
   return (
     <div className="flex flex-col gap-6">

@@ -5,9 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 
 export default function PlanningPage() {
-  const [plans, setPlans] = useState([
-    { id: "P-1002", weight: "250.00", planner: "John Doe", expectedYield: "38.5%", polishedCt: "96.25", status: "In Progress" },
-  ])
+  const [plans, setPlans] = useState([])
 
   return (
     <div className="flex flex-col gap-6">
