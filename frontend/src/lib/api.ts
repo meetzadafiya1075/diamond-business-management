@@ -40,6 +40,7 @@ export const coreApi = {
   deleteRoughParcel: (id: number) => fetchWithAuth(`/core/rough-parcels/${id}/`, { method: 'DELETE' }),
   
   getParcelTracking: () => fetchWithAuth('/core/parcel-tracking/'),
+  updateParcelTracking: (id: number, data: any) => fetchWithAuth(`/core/parcel-tracking/${id}/`, { method: 'PATCH', body: JSON.stringify(data) }),
   
   getPlanningRecords: () => fetchWithAuth('/core/planning-records/'),
   createPlanningRecord: (data: any) => fetchWithAuth('/core/planning-records/', { method: 'POST', body: JSON.stringify(data) }),

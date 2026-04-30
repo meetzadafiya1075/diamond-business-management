@@ -3,6 +3,7 @@ import { useState, useEffect } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { coreApi } from "@/lib/api"
 
 export default function RoughInventoryPage() {
@@ -12,7 +13,7 @@ export default function RoughInventoryPage() {
   const loadData = async () => {
     try {
       const data = await coreApi.getParcelTracking()
-      setInventory(data)
+      setInventory(Array.isArray(data) ? data : data.results || [])
     } catch (err: any) {
       console.error(err)
     } finally {
@@ -22,25 +23,30 @@ export default function RoughInventoryPage() {
 
   useEffect(() => {
     loadData()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Need parcel details in tracking API, for now we will fetch rough parcels and map them
-  // A better way is to serialize parcel details into ParcelTracking view in Django
-  // Let's assume we update the serializer later.
+  const handleStatusChange = async (trackingId: number, newStatus: string) => {
+    try {
+      await coreApi.updateParcelTracking(trackingId, { status: newStatus })
+      loadData()
+    } catch (err) {
+      console.error("Failed to update status", err)
+      alert("Failed to update status. Only admins can change status manually.")
+    }
+  }
 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Rough Inventory</h1>
-          <p className="text-muted-foreground mt-2">Live tracking of all rough diamond parcels.</p>
+          <p className="text-muted-foreground mt-2">Live tracking and status management of all parcels.</p>
         </div>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Live Stock</CardTitle>
+          <CardTitle>Live Stock Tracking</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -49,25 +55,47 @@ export default function RoughInventoryPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Tracking ID</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>Parcel Name</TableHead>
+                  <TableHead>Current Status</TableHead>
                   <TableHead>Location</TableHead>
-                  <TableHead>Last Updated</TableHead>
+                  <TableHead>Update Status</TableHead>
+                  <TableHead>Last Activity</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {inventory.length === 0 ? (
-                  <TableRow><TableCell colSpan={4} className="text-center">No inventory found.</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={5} className="text-center">No inventory items found.</TableCell></TableRow>
                 ) : inventory.map((item) => (
                   <TableRow key={item.id}>
-                    <TableCell className="font-medium">#{item.id}</TableCell>
+                    <TableCell className="font-medium">
+                      {item.parcel_name || `Parcel #${item.parcel}`}
+                    </TableCell>
                     <TableCell>
-                      <Badge variant={item.status === 'IN_INVENTORY' ? 'default' : 'secondary'}>
+                      <Badge variant={item.status === 'POLISHED' ? 'default' : 'secondary'}>
                         {item.status.replace('_', ' ')}
                       </Badge>
                     </TableCell>
                     <TableCell>{item.location}</TableCell>
-                    <TableCell>{new Date(item.last_updated).toLocaleString()}</TableCell>
+                    <TableCell>
+                      <Select 
+                        value={item.status} 
+                        onValueChange={(val: string | null) => handleStatusChange(item.id, val || item.status)}
+                      >
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue placeholder="Change status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="IN_INVENTORY">In Inventory</SelectItem>
+                          <SelectItem value="IN_PLANNING">In Planning</SelectItem>
+                          <SelectItem value="IN_PRODUCTION">In Production</SelectItem>
+                          <SelectItem value="POLISHED">Polished (Ready)</SelectItem>
+                          <SelectItem value="SOLD">Sold</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground">
+                      {new Date(item.last_updated).toLocaleString()}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
