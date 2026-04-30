@@ -27,9 +27,11 @@ export default function SettingsPage() {
 
   const initSettings = async () => {
     try {
+      // Fetch data directly. If user isn't ADMIN, the API will reject it anyway.
       const me = await authApi.getCurrentUser()
+      setIsAdmin(me.role === 'ADMIN')
+      
       if (me.role === 'ADMIN') {
-        setIsAdmin(true)
         loadData()
       }
     } catch (err) {
@@ -42,11 +44,17 @@ export default function SettingsPage() {
   const loadData = async () => {
     try {
       const [userData, logData] = await Promise.all([
-        authApi.getUsers(),
-        authApi.getLogs()
+        authApi.getUsers().catch(() => ({ results: [] })),
+        authApi.getLogs().catch(() => ({ results: [] }))
       ])
-      setUsers(Array.isArray(userData) ? userData : userData.results || [])
-      setLogs(Array.isArray(logData) ? logData : logData.results || [])
+      
+      // Handle both array and paginated formats
+      const finalUsers = Array.isArray(userData) ? userData : (userData as any).results || []
+      const finalLogs = Array.isArray(logData) ? logData : (logData as any).results || []
+      
+      setUsers(finalUsers)
+      setLogs(finalLogs)
+      console.log("Loaded Settings Data:", { users: finalUsers.length, logs: finalLogs.length })
     } catch (err) {
       console.error("Failed to load settings data", err)
     }

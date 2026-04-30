@@ -36,6 +36,15 @@ class QuotationViewSet(viewsets.ModelViewSet):
             return [IsAdminRole()]
         return [IsAuthenticated()]
 
+    def perform_create(self, serializer):
+        quote = serializer.save()
+        from users.models import ActivityLog
+        ActivityLog.objects.create(
+            user=self.request.user,
+            action="QUOTATION_CREATED",
+            details=f"Quoted ${quote.proposed_price} to {quote.buyer.company_name} for stone {quote.stone.stone_id}"
+        )
+
 class TransactionViewSet(viewsets.ModelViewSet):
     queryset = Transaction.objects.all()
     serializer_class = TransactionSerializer
