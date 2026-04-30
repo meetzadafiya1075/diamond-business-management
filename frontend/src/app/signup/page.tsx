@@ -38,7 +38,7 @@ export default function SignupPage() {
       if (!res.ok) {
         const data = await res.json()
         // Extract the first error message found in the response object
-        const firstError = Object.values(data).flat()[0]
+        const firstError = Object.values(data).flat()[0] as string | undefined
         throw new Error(firstError || "Signup failed")
       }
       
