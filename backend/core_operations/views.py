@@ -1,0 +1,51 @@
+from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
+from .models import (
+    Supplier, RoughParcel, ParcelTracking, 
+    PlanningRecord, ProductionJob, YieldReport, PolishedStone
+)
+from .serializers import (
+    SupplierSerializer, RoughParcelSerializer, 
+    ParcelTrackingSerializer, PlanningRecordSerializer, 
+    ProductionJobSerializer, YieldReportSerializer, PolishedStoneSerializer
+)
+
+class SupplierViewSet(viewsets.ModelViewSet):
+    queryset = Supplier.objects.all()
+    serializer_class = SupplierSerializer
+    permission_classes = [IsAuthenticated]
+
+class RoughParcelViewSet(viewsets.ModelViewSet):
+    queryset = RoughParcel.objects.all()
+    serializer_class = RoughParcelSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        parcel = serializer.save()
+        # Automatically create the tracking record for the new parcel
+        ParcelTracking.objects.create(parcel=parcel, status='IN_INVENTORY')
+
+class ParcelTrackingViewSet(viewsets.ModelViewSet):
+    queryset = ParcelTracking.objects.all()
+    serializer_class = ParcelTrackingSerializer
+    permission_classes = [IsAuthenticated]
+
+class PlanningRecordViewSet(viewsets.ModelViewSet):
+    queryset = PlanningRecord.objects.all()
+    serializer_class = PlanningRecordSerializer
+    permission_classes = [IsAuthenticated]
+
+class ProductionJobViewSet(viewsets.ModelViewSet):
+    queryset = ProductionJob.objects.all()
+    serializer_class = ProductionJobSerializer
+    permission_classes = [IsAuthenticated]
+
+class YieldReportViewSet(viewsets.ModelViewSet):
+    queryset = YieldReport.objects.all()
+    serializer_class = YieldReportSerializer
+    permission_classes = [IsAuthenticated]
+
+class PolishedStoneViewSet(viewsets.ModelViewSet):
+    queryset = PolishedStone.objects.all()
+    serializer_class = PolishedStoneSerializer
+    permission_classes = [IsAuthenticated]
