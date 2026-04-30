@@ -19,7 +19,7 @@ export default function LoginPage() {
     e.preventDefault()
     setError("")
     try {
-      const res = await fetch(`${API_BASE_URL.replace('/api', '')}/token/`, {
+      const res = await fetch(`${API_BASE_URL}/token/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password })
