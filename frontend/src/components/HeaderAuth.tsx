@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { API_BASE_URL } from "@/lib/api"
 
 interface UserData {
   username: string;
@@ -20,7 +21,7 @@ export function HeaderAuth() {
       const token = localStorage.getItem("access_token")
       if (token) {
         try {
-          const res = await fetch("http://localhost:8000/api/auth/users/me/", {
+          const res = await fetch(`${API_BASE_URL}/auth/users/me/`, {
             headers: {
               "Authorization": `Bearer ${token}`
             }

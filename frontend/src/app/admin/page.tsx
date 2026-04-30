@@ -28,6 +28,7 @@ import {
   SelectValue 
 } from "@/components/ui/select"
 import { Trash2, UserPlus, ShieldAlert } from "lucide-react"
+import { API_BASE_URL } from "@/lib/api"
 
 interface User {
   id: number
@@ -60,7 +61,7 @@ export default function AdminPanel() {
 
       try {
         // First check if user is admin
-        const meRes = await fetch("http://localhost:8000/api/auth/users/me/", {
+        const meRes = await fetch(`${API_BASE_URL}/auth/users/me/`, {
           headers: { "Authorization": `Bearer ${token}` }
         })
         
@@ -76,7 +77,7 @@ export default function AdminPanel() {
         setIsAdmin(true)
 
         // Fetch all users
-        const usersRes = await fetch("http://localhost:8000/api/auth/users/", {
+        const usersRes = await fetch(`${API_BASE_URL}/auth/users/`, {
           headers: { "Authorization": `Bearer ${token}` }
         })
         
@@ -100,7 +101,7 @@ export default function AdminPanel() {
     const token = localStorage.getItem("access_token")
 
     try {
-      const res = await fetch("http://localhost:8000/api/auth/users/", {
+      const res = await fetch(`${API_BASE_URL}/auth/users/`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -132,7 +133,7 @@ export default function AdminPanel() {
     
     const token = localStorage.getItem("access_token")
     try {
-      const res = await fetch(`http://localhost:8000/api/auth/users/${id}/`, {
+      const res = await fetch(`${API_BASE_URL}/auth/users/${id}/`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` }
       })

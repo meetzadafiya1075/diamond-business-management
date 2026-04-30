@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8000/api'
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
 
 // Simple helper to fetch with auth token (stub for now until login page is built)
 // We will assume login will store the token in localStorage
