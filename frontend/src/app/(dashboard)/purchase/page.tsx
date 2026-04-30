@@ -3,14 +3,14 @@ import { useState, useEffect } from "react"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { coreApi } from "@/lib/api"
 import { useRouter } from "next/navigation"
 import { useCurrency } from "@/hooks/useCurrency"
-import { Trash2 } from "lucide-react"
+import { Trash2, ShoppingCart, UserPlus, PackagePlus } from "lucide-react"
 
 export default function RoughPurchasePage() {
   const { symbol } = useCurrency()
@@ -24,7 +24,7 @@ export default function RoughPurchasePage() {
 
   const [parcelName, setParcelName] = useState("")
   const [supplierId, setSupplierId] = useState("")
-  const [purchaseDate, setPurchaseDate] = useState("")
+  const [purchaseDate, setPurchaseDate] = useState(new Date().toISOString().split('T')[0])
   const [caratWeight, setCaratWeight] = useState("")
   const [costPerCarat, setCostPerCarat] = useState("")
   const [isParcelDialogOpen, setIsParcelDialogOpen] = useState(false)
@@ -37,13 +37,10 @@ export default function RoughPurchasePage() {
         coreApi.getRoughParcels(),
         coreApi.getSuppliers()
       ])
-      setParcels(parcelData)
-      setSuppliers(supplierData)
+      setParcels(Array.isArray(parcelData) ? parcelData : parcelData.results || [])
+      setSuppliers(Array.isArray(supplierData) ? supplierData : supplierData.results || [])
     } catch (err: any) {
-      if (err.message.includes('Authentication') || err.message.includes('credential')) {
-        router.push('/login')
-      }
-      console.error(err)
+      console.error("Failed to load purchase data", err)
     } finally {
       setLoading(false)
     }
@@ -51,11 +48,10 @@ export default function RoughPurchasePage() {
 
   useEffect(() => {
     loadData()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const handleDeleteParcel = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this parcel?")) return
+    if (!confirm("Are you sure?")) return
     try {
       await coreApi.deleteRoughParcel(id)
       loadData()
@@ -70,9 +66,9 @@ export default function RoughPurchasePage() {
       await coreApi.createSupplier({ name: newSupplierName })
       setNewSupplierName("")
       setIsSupplierDialogOpen(false)
-      loadData() // Reload suppliers
+      loadData()
     } catch (err) {
-      console.error("Failed to add supplier", err)
+      alert("Failed to add supplier.")
     }
   }
 
@@ -83,20 +79,18 @@ export default function RoughPurchasePage() {
         supplier: supplierId,
         parcel_name: parcelName,
         purchase_date: purchaseDate,
-        carat_weight: parseFloat(caratWeight),
-        cost_per_carat: parseFloat(costPerCarat),
+        carat_weight: caratWeight,
+        cost_per_carat: costPerCarat,
       })
       
-      // Reset form
       setParcelName("")
       setSupplierId("")
-      setPurchaseDate("")
       setCaratWeight("")
       setCostPerCarat("")
       setIsParcelDialogOpen(false)
-      loadData() // Reload parcels
-    } catch (err) {
-      console.error("Failed to add parcel", err)
+      loadData()
+    } catch (err: any) {
+      alert(`Failed to add parcel: ${err.message || "Please check all fields"}`)
     }
   }
 
@@ -109,39 +103,45 @@ export default function RoughPurchasePage() {
         </div>
         <div className="flex gap-2">
           <Dialog open={isSupplierDialogOpen} onOpenChange={setIsSupplierDialogOpen}>
-            <DialogTrigger className={buttonVariants({ variant: "outline" })}>
-              + New Supplier
+            <DialogTrigger>
+              <div className="bg-outline text-outline-foreground border border-input hover:bg-accent h-10 px-4 py-2 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors cursor-pointer">
+                <UserPlus className="mr-2 h-4 w-4" /> New Supplier
+              </div>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Add New Supplier</DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleAddSupplier} className="space-y-4">
+              <form onSubmit={handleAddSupplier} className="space-y-4 mt-4">
                 <div className="space-y-2">
                   <Label>Supplier Name</Label>
                   <Input required value={newSupplierName} onChange={e => setNewSupplierName(e.target.value)} />
                 </div>
-                <Button type="submit">Save Supplier</Button>
+                <DialogFooter>
+                  <Button type="submit">Save Supplier</Button>
+                </DialogFooter>
               </form>
             </DialogContent>
           </Dialog>
 
           <Dialog open={isParcelDialogOpen} onOpenChange={setIsParcelDialogOpen}>
-            <DialogTrigger className={buttonVariants()}>
-              + New Purchase
+            <DialogTrigger>
+              <div className="bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors cursor-pointer">
+                <PackagePlus className="mr-2 h-4 w-4" /> New Purchase
+              </div>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Add Rough Parcel</DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleAddParcel} className="space-y-4">
+              <form onSubmit={handleAddParcel} className="space-y-4 mt-4">
                 <div className="space-y-2">
                   <Label>Parcel ID / Name</Label>
-                  <Input required value={parcelName} onChange={e => setParcelName(e.target.value)} />
+                  <Input required value={parcelName} onChange={e => setParcelName(e.target.value)} placeholder="e.g. R-101" />
                 </div>
                 <div className="space-y-2">
                   <Label>Supplier</Label>
-                  <Select onValueChange={(val: string | null) => setSupplierId(val || "")} required>
+                  <Select value={supplierId} onValueChange={(val: string | null) => setSupplierId(val || "")} required>
                     <SelectTrigger>
                       <SelectValue placeholder="Select supplier" />
                     </SelectTrigger>
@@ -159,14 +159,16 @@ export default function RoughPurchasePage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Weight (ct)</Label>
-                    <Input type="number" step="0.01" required value={caratWeight} onChange={e => setCaratWeight(e.target.value)} />
+                    <Input type="number" step="0.001" required value={caratWeight} onChange={e => setCaratWeight(e.target.value)} />
                   </div>
                   <div className="space-y-2">
                     <Label>Cost per ct ({symbol})</Label>
                     <Input type="number" step="0.01" required value={costPerCarat} onChange={e => setCostPerCarat(e.target.value)} />
                   </div>
                 </div>
-                <Button type="submit" className="w-full">Save Parcel</Button>
+                <DialogFooter>
+                  <Button type="submit" className="w-full">Save Parcel</Button>
+                </DialogFooter>
               </form>
             </DialogContent>
           </Dialog>
@@ -175,7 +177,7 @@ export default function RoughPurchasePage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Recent Purchases</CardTitle>
+          <CardTitle>Inventory Entries</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -208,7 +210,7 @@ export default function RoughPurchasePage() {
                       <Button 
                         variant="ghost" 
                         size="icon" 
-                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                        className="text-red-500 hover:text-red-700"
                         onClick={() => handleDeleteParcel(p.id)}
                       >
                         <Trash2 className="h-4 w-4" />
