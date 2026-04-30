@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 
 export default function PlanningPage() {
-  const [plans, setPlans] = useState([])
+  const [plans, setPlans] = useState<any[]>([])
 
   return (
     <div className="flex flex-col gap-6">

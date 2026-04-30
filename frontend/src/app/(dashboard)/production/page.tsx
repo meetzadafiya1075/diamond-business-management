@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 
 export default function ProductionPage() {
-  const [jobs, setJobs] = useState([])
+  const [jobs, setJobs] = useState<any[]>([])
 
   return (
     <div className="flex flex-col gap-6">
