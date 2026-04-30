@@ -49,7 +49,7 @@ class ParcelTracking(models.Model):
 
 class PlanningRecord(models.Model):
     parcel = models.OneToOneField(RoughParcel, on_delete=models.CASCADE, related_name='planning')
-    planner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, limit_choices_to={'role': 'PLANNER'})
+    planner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, limit_choices_to={'role__in': ['PLANNER', 'ADMIN']})
     expected_yield_percent = models.DecimalField(max_digits=5, decimal_places=2)
     expected_polished_carats = models.DecimalField(max_digits=10, decimal_places=3)
     planning_notes = models.TextField(blank=True, null=True)

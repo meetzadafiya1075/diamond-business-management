@@ -35,6 +35,13 @@ class PlanningRecordViewSet(viewsets.ModelViewSet):
     serializer_class = PlanningRecordSerializer
     permission_classes = [IsAuthenticated]
 
+    def perform_create(self, serializer):
+        plan = serializer.save()
+        # Update tracking status
+        tracking, created = ParcelTracking.objects.get_or_create(parcel=plan.parcel)
+        tracking.status = 'IN_PLANNING'
+        tracking.save()
+
 class ProductionJobViewSet(viewsets.ModelViewSet):
     queryset = ProductionJob.objects.all()
     serializer_class = ProductionJobSerializer

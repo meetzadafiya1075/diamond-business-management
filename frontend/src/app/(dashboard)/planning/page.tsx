@@ -72,9 +72,9 @@ export default function PlanningPage() {
       
       setIsDialogOpen(false)
       loadData()
-    } catch (err) {
+    } catch (err: any) {
       console.error(err)
-      alert("Failed to assign planning")
+      alert(`Failed to assign planning: ${err.message}`)
     }
   }
 
