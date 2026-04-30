@@ -22,7 +22,7 @@ const navItems = [
   { name: 'Planning', href: '/planning', icon: LineChart },
   { name: 'Production Board', href: '/production', icon: Wrench },
   { name: 'Worker Mgmt', href: '/workers', icon: Users },
-  { name: 'Yield & Loss', href: '/yield', icon: PieChart },
+  { name: 'Yield & Loss', href: '/reports/yield', icon: PieChart },
   { name: 'Polished Inventory', href: '/inventory/polished', icon: Diamond },
   { name: 'Sales CRM', href: '/sales', icon: Briefcase },
   { name: 'Accounts', href: '/accounts', icon: CreditCard },
