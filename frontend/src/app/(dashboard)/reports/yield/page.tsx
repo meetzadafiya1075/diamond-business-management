@@ -101,7 +101,7 @@ export default function YieldReportPage() {
             <form onSubmit={handleGenerateReport} className="space-y-4">
               <div className="space-y-2">
                 <Label>Select Finished Parcel</Label>
-                <Select value={selectedParcelId} onValueChange={setSelectedParcelId}>
+                <Select value={selectedParcelId} onValueChange={(val: string | null) => setSelectedParcelId(val || "")}>
                   <SelectTrigger>
                     <SelectValue placeholder="Choose parcel" />
                   </SelectTrigger>
