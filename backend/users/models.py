@@ -19,6 +19,18 @@ class User(AbstractUser):
     def __str__(self):
         return f"{self.username} - {self.get_role_display()}"
 
+class ActivityLog(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    action = models.CharField(max_length=255)
+    details = models.TextField(blank=True, null=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-timestamp']
+
+    def __str__(self):
+        return f"{self.user.username if self.user else 'System'} - {self.action}"
+
 class WorkerProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='worker_profile', limit_choices_to={'role': 'WORKER'})
     skills = models.CharField(max_length=255, blank=True, null=True, help_text="Comma separated skills, e.g., Sawing, Polishing")

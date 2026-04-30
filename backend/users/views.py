@@ -2,9 +2,14 @@ from rest_framework import viewsets, generics, status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from .models import User
-from .serializers import UserSerializer, SignupSerializer
+from .models import User, ActivityLog
+from .serializers import UserSerializer, SignupSerializer, ActivityLogSerializer
 from .permissions import IsAdminRole
+
+class ActivityLogViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = ActivityLog.objects.all()
+    serializer_class = ActivityLogSerializer
+    permission_classes = [IsAdminRole]
 
 class SignupView(generics.CreateAPIView):
     queryset = User.objects.all()

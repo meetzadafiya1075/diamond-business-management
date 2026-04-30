@@ -92,5 +92,10 @@ export const authApi = {
     method: 'POST',
     body: JSON.stringify(data),
   }),
+  updateUser: (id: number, data: any) => fetchWithAuth(`/auth/users/${id}/`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  }),
   deleteUser: (id: number) => fetchWithAuth(`/auth/users/${id}/`, { method: 'DELETE' }),
+  getLogs: () => fetchWithAuth('/auth/logs/'),
 }

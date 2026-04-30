@@ -5,64 +5,65 @@ import { Button, buttonVariants } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
 import { authApi } from "@/lib/api"
 import { useCurrency } from "@/hooks/useCurrency"
+import { Shield, List, Save, UserCog } from "lucide-react"
 
 export default function SettingsPage() {
   const { currency, setCurrency } = useCurrency()
-  const [isUserDialogOpen, setIsUserDialogOpen] = useState(false)
-  const [username, setUsername] = useState("")
-  const [password, setPassword] = useState("")
-  const [role, setRole] = useState("WORKER")
+  const [isLogDialogOpen, setIsLogDialogOpen] = useState(false)
+  const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false)
   const [users, setUsers] = useState<any[]>([])
+  const [logs, setLogs] = useState<any[]>([])
   const [isAdmin, setIsAdmin] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const initSettings = async () => {
-      try {
-        const me = await authApi.getCurrentUser()
-        if (me.role === 'ADMIN') {
-          setIsAdmin(true)
-          loadUsers()
-        }
-      } catch (err) {
-        console.error("Failed to fetch user role", err)
-      }
-    }
     initSettings()
   }, [])
 
-  const loadUsers = async () => {
+  const initSettings = async () => {
     try {
-      const data = await authApi.getUsers()
-      setUsers(data)
+      const me = await authApi.getCurrentUser()
+      if (me.role === 'ADMIN') {
+        setIsAdmin(true)
+        loadData()
+      }
     } catch (err) {
-      console.error("Failed to load users", err)
+      console.error("Failed to fetch settings", err)
+    } finally {
+      setLoading(false)
     }
   }
 
-  const handleCreateUser = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const loadData = async () => {
     try {
-      await authApi.createUser({ username, password, role })
-      setUsername("")
-      setPassword("")
-      setRole("WORKER")
-      setIsUserDialogOpen(false)
-      loadUsers()
-      alert("User created successfully!")
+      const [userData, logData] = await Promise.all([
+        authApi.getUsers(),
+        authApi.getLogs()
+      ])
+      setUsers(Array.isArray(userData) ? userData : userData.results || [])
+      setLogs(Array.isArray(logData) ? logData : logData.results || [])
     } catch (err) {
-      alert("Failed to create user. Make sure the username is unique.")
+      console.error("Failed to load settings data", err)
     }
   }
 
-  const handleSave = () => {
+  const handleUpdateRole = async (userId: number, newRole: string) => {
+    try {
+      await authApi.updateUser(userId, { role: newRole })
+      loadData()
+      alert("Role updated successfully!")
+    } catch (err) {
+      alert("Failed to update role.")
+    }
+  }
+
+  const handleSaveProfile = () => {
     alert("Business Profile settings saved successfully!");
-  }
-
-  const handleNotImplemented = (feature: string) => {
-    alert(`The ${feature} feature is scheduled for a future update.`);
   }
 
   return (
@@ -86,7 +87,7 @@ export default function SettingsPage() {
             </div>
             <div className="space-y-2">
               <Label>Default Currency</Label>
-              <Select value={currency} onValueChange={(val) => setCurrency(val || "USD")}>
+              <Select value={currency} onValueChange={(val: string | null) => setCurrency(val || "USD")}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select currency" />
                 </SelectTrigger>
@@ -96,83 +97,112 @@ export default function SettingsPage() {
                 </SelectContent>
               </Select>
             </div>
-            <Button onClick={handleSave}>Save Changes</Button>
+            <Button onClick={handleSaveProfile} className="gap-2">
+              <Save className="h-4 w-4" /> Save Changes
+            </Button>
           </CardContent>
         </Card>
 
         {isAdmin && (
           <Card>
             <CardHeader>
-              <CardTitle>User Management</CardTitle>
+              <CardTitle>Security & Access</CardTitle>
             </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground mb-4">
-                Add new employees to the ERP system and configure their role-based access control (RBAC).
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Configure user permissions and view system audit trails.
               </p>
-              <Dialog open={isUserDialogOpen} onOpenChange={setIsUserDialogOpen}>
-                <DialogTrigger className={buttonVariants({ variant: "outline", className: "w-full mb-2" })}>
-                  Manage Users
+              
+              <Dialog open={isRoleDialogOpen} onOpenChange={setIsRoleDialogOpen}>
+                <DialogTrigger>
+                  <div className="w-full h-10 px-4 py-2 border rounded-md text-sm font-medium hover:bg-accent inline-flex items-center justify-center gap-2 cursor-pointer transition-colors">
+                    <UserCog className="h-4 w-4" /> Manage Roles
+                  </div>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="max-w-2xl">
                   <DialogHeader>
-                    <DialogTitle>Create New User</DialogTitle>
+                    <DialogTitle>Manage User Roles</DialogTitle>
                   </DialogHeader>
-                  <form onSubmit={handleCreateUser} className="space-y-4 mt-4">
-                    <div className="space-y-2">
-                      <Label>Username</Label>
-                      <Input required value={username} onChange={e => setUsername(e.target.value)} />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Password</Label>
-                      <Input type="password" required value={password} onChange={e => setPassword(e.target.value)} />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Role</Label>
-                      <Select value={role} onValueChange={(val) => setRole(val || "WORKER")}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="ADMIN">Admin / Owner</SelectItem>
-                          <SelectItem value="OFFICE">Office / Admin</SelectItem>
-                          <SelectItem value="PLANNER">Planner</SelectItem>
-                          <SelectItem value="WORKER">Worker</SelectItem>
-                          <SelectItem value="SALES">Sales</SelectItem>
-                          <SelectItem value="ACCOUNTANT">Accountant</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <Button type="submit" className="w-full">Create User</Button>
-                  </form>
-                  <div className="mt-6">
-                    <h4 className="text-sm font-semibold mb-2">Recent Users</h4>
-                    <div className="space-y-2 max-h-[150px] overflow-y-auto">
-                      {users.map(u => (
-                        <div key={u.id} className="flex justify-between items-center bg-slate-50 p-2 rounded text-sm border">
-                          <span className="font-medium">{u.username}</span>
-                          <span className="text-xs bg-slate-200 px-2 py-1 rounded">{u.role}</span>
-                        </div>
-                      ))}
-                    </div>
+                  <div className="mt-4">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>User</TableHead>
+                          <TableHead>Current Role</TableHead>
+                          <TableHead className="text-right">Change To</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {users.map(u => (
+                          <TableRow key={u.id}>
+                            <TableCell className="font-medium">{u.username}</TableCell>
+                            <TableCell>
+                              <Badge variant={u.role === 'ADMIN' ? 'default' : 'outline'}>{u.role}</Badge>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <Select onValueChange={(val: string | null) => handleUpdateRole(u.id, val || u.role)}>
+                                <SelectTrigger className="w-[130px] ml-auto">
+                                  <SelectValue placeholder="Update role" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="ADMIN">Admin</SelectItem>
+                                  <SelectItem value="PLANNER">Planner</SelectItem>
+                                  <SelectItem value="WORKER">Worker</SelectItem>
+                                  <SelectItem value="OFFICE">Office</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
                   </div>
                 </DialogContent>
               </Dialog>
-              <Button variant="outline" className="w-full" onClick={() => handleNotImplemented("Manage Roles")}>Manage Roles</Button>
+
+              <Dialog open={isLogDialogOpen} onOpenChange={setIsLogDialogOpen}>
+                <DialogTrigger>
+                  <div className="w-full h-10 px-4 py-2 bg-secondary text-secondary-foreground rounded-md text-sm font-medium hover:bg-secondary/80 inline-flex items-center justify-center gap-2 cursor-pointer transition-colors">
+                    <List className="h-4 w-4" /> View Audit Logs
+                  </div>
+                </DialogTrigger>
+                <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
+                  <DialogHeader>
+                    <DialogTitle>System Audit Logs</DialogTitle>
+                  </DialogHeader>
+                  <div className="mt-4 overflow-y-auto flex-1">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>User</TableHead>
+                          <TableHead>Action</TableHead>
+                          <TableHead>Details</TableHead>
+                          <TableHead className="text-right">Time</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {logs.length === 0 ? (
+                          <TableRow><TableCell colSpan={4} className="text-center">No logs found.</TableCell></TableRow>
+                        ) : logs.map((log) => (
+                          <TableRow key={log.id}>
+                            <TableCell className="font-medium">{log.username}</TableCell>
+                            <TableCell>
+                              <Badge variant="secondary">{log.action}</Badge>
+                            </TableCell>
+                            <TableCell className="text-sm max-w-[200px] truncate">{log.details || '-'}</TableCell>
+                            <TableCell className="text-right text-xs text-muted-foreground">
+                              {new Date(log.timestamp).toLocaleString()}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </CardContent>
           </Card>
         )}
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Audit Logs</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground mb-4">
-              View system access logs and track data modification history.
-            </p>
-            <Button variant="secondary" className="w-full" onClick={() => handleNotImplemented("Audit Logs")}>View Logs</Button>
-          </CardContent>
-        </Card>
       </div>
     </div>
   )

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, WorkerProfile
+from .models import User, WorkerProfile, ActivityLog
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -31,3 +31,9 @@ class SignupSerializer(serializers.ModelSerializer):
             role=validated_data.get('role', 'WORKER')
         )
         return user
+
+class ActivityLogSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username', read_only=True)
+    class Meta:
+        model = ActivityLog
+        fields = '__all__'
