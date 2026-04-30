@@ -80,6 +80,11 @@ export default function DocumentsPage() {
     }
   }
 
+  const handleDownload = (fileUrl: string) => {
+    if (!fileUrl) return
+    window.open(fileUrl, '_blank')
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex justify-between items-center">
@@ -111,7 +116,7 @@ export default function DocumentsPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="type">Category</Label>
-                <Select value={type} onOpenChange={() => {}} onValueChange={(val: any) => setType(val)}>
+                <Select value={type} onValueChange={(val: any) => setType(val)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
@@ -164,13 +169,24 @@ export default function DocumentsPage() {
                   <TableRow><TableCell colSpan={4} className="text-center">No documents found.</TableCell></TableRow>
                 ) : documents.map((doc) => (
                   <TableRow key={doc.id}>
-                    <TableCell className="font-medium text-blue-600 underline cursor-pointer">{doc.title}</TableCell>
+                    <TableCell 
+                      className="font-medium text-blue-600 underline cursor-pointer"
+                      onClick={() => handleDownload(doc.file)}
+                    >
+                      {doc.title}
+                    </TableCell>
                     <TableCell>
                       <Badge variant="outline">{doc.document_type}</Badge>
                     </TableCell>
                     <TableCell>{new Date(doc.uploaded_at).toLocaleString()}</TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="sm">Download</Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => handleDownload(doc.file)}
+                      >
+                        Download
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
