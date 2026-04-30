@@ -23,8 +23,14 @@ export async function fetchWithAuth(endpoint: string, options: RequestInit = {})
   })
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}))
-    throw new Error(errorData.detail || 'API request failed')
+    let errorData;
+    try {
+      errorData = await response.json();
+    } catch (e) {
+      errorData = { message: 'API request failed' };
+    }
+    const message = typeof errorData === 'object' ? JSON.stringify(errorData) : errorData;
+    throw new Error(message || 'API request failed');
   }
 
   return response.json()

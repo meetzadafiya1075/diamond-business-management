@@ -91,8 +91,15 @@ export default function RoughPurchasePage() {
       loadData()
     } catch (err: any) {
       console.error("Failed to add parcel", err)
-      const errorMsg = err.message || "Please check if the parcel name is unique and all fields are filled."
-      alert(`Failed to add parcel: ${errorMsg}`)
+      let errorMsg = err.message || "Unknown error"
+      // Try to parse JSON if it's a stringified object
+      try {
+        const parsed = JSON.parse(errorMsg)
+        errorMsg = Object.entries(parsed)
+          .map(([key, val]) => `${key}: ${Array.isArray(val) ? val.join(', ') : val}`)
+          .join('\n')
+      } catch (e) {}
+      alert(`Failed to add parcel:\n${errorMsg}`)
     }
   }
 
