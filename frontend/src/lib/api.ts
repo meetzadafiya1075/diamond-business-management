@@ -67,7 +67,12 @@ export const businessApi = {
   createQuotation: (data: any) => fetchWithAuth('/business/quotations/', { method: 'POST', body: JSON.stringify(data) }),
   deleteQuotation: (id: number) => fetchWithAuth(`/business/quotations/${id}/`, { method: 'DELETE' }),
   getTransactions: () => fetchWithAuth('/business/transactions/'),
+  createTransaction: (data: any) => fetchWithAuth('/business/transactions/', { method: 'POST', body: JSON.stringify(data) }),
+  deleteTransaction: (id: number) => fetchWithAuth(`/business/transactions/${id}/`, { method: 'DELETE' }),
+
   getExpenses: () => fetchWithAuth('/business/expenses/'),
+  createExpense: (data: any) => fetchWithAuth('/business/expenses/', { method: 'POST', body: JSON.stringify(data) }),
+  deleteExpense: (id: number) => fetchWithAuth(`/business/expenses/${id}/`, { method: 'DELETE' }),
   getDocuments: () => fetchWithAuth('/business/documents/'),
   createDocument: (formData: FormData) => fetchWithAuth('/business/documents/', {
     method: 'POST',
