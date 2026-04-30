@@ -37,7 +37,9 @@ export default function SignupPage() {
       
       if (!res.ok) {
         const data = await res.json()
-        throw new Error(data.username?.[0] || "Signup failed")
+        // Extract the first error message found in the response object
+        const firstError = Object.values(data).flat()[0]
+        throw new Error(firstError || "Signup failed")
       }
       
       router.push("/login")
