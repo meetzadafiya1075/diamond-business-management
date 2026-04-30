@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { businessApi } from "@/lib/api"
+import { businessApi, API_BASE_URL } from "@/lib/api"
 import { useRouter } from "next/navigation"
 
 import { 
