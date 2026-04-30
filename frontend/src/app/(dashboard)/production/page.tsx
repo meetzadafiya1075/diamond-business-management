@@ -1,58 +1,185 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { coreApi, authApi } from "@/lib/api"
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger,
+  DialogFooter 
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Badge } from "@/components/ui/badge"
 
 export default function ProductionPage() {
   const [jobs, setJobs] = useState<any[]>([])
+  const [parcels, setParcels] = useState<any[]>([])
+  const [workers, setWorkers] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+
+  // Form State
+  const [selectedParcel, setSelectedParcel] = useState("")
+  const [selectedWorker, setSelectedWorker] = useState("")
+  const [selectedStage, setSelectedStage] = useState("MARKING")
+  const [notes, setNotes] = useState("")
+
+  useEffect(() => {
+    loadData()
+  }, [])
+
+  const loadData = async () => {
+    try {
+      const [jobData, parcelData, userData] = await Promise.all([
+        coreApi.getProductionJobs(),
+        coreApi.getRoughParcels(),
+        authApi.getUsers()
+      ])
+      
+      setJobs(Array.isArray(jobData) ? jobData : jobData.results || [])
+      setParcels(Array.isArray(parcelData) ? parcelData : parcelData.results || [])
+      setWorkers(Array.isArray(userData) ? userData : userData.results || [])
+    } catch (err) {
+      console.error("Failed to load production data", err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleAssignJob = async (e: React.FormEvent) => {
+    e.preventDefault()
+    try {
+      await coreApi.createProductionJob({
+        parcel: selectedParcel,
+        assigned_worker: selectedWorker,
+        stage: selectedStage,
+        notes: notes,
+        status: 'IN_PROGRESS'
+      })
+      
+      setIsDialogOpen(false)
+      loadData()
+    } catch (err: any) {
+      console.error(err)
+      alert(`Failed to assign job: ${err.message}`)
+    }
+  }
 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Production Board</h1>
-          <p className="text-muted-foreground mt-2">Track jobs across marking, sawing, bruting, and polishing.</p>
+          <p className="text-muted-foreground mt-2">Monitor active jobs and manufacturing stages.</p>
         </div>
-        <Button>+ Assign Job</Button>
+        
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger>
+            <div className="bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors cursor-pointer">
+              + Assign Job
+            </div>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Assign New Production Job</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleAssignJob} className="space-y-4">
+              <div className="space-y-2">
+                <Label>Select Parcel</Label>
+                <Select value={selectedParcel} onValueChange={(val: string | null) => setSelectedParcel(val || "")}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose parcel" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {parcels.length === 0 ? (
+                      <SelectItem value="none" disabled>No parcels available.</SelectItem>
+                    ) : parcels.map(p => (
+                      <SelectItem key={p.id} value={p.id.toString()}>{p.parcel_name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Assign Worker</Label>
+                <Select value={selectedWorker} onValueChange={(val: string | null) => setSelectedWorker(val || "")}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select worker" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {workers.length === 0 ? (
+                      <SelectItem value="none" disabled>No workers found.</SelectItem>
+                    ) : workers.map(u => (
+                      <SelectItem key={u.id} value={u.id.toString()}>{u.username}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Initial Stage</Label>
+                <Select value={selectedStage} onValueChange={(val: string | null) => setSelectedStage(val || "MARKING")}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select stage" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="MARKING">Marking</SelectItem>
+                    <SelectItem value="SAWING">Sawing / Lasering</SelectItem>
+                    <SelectItem value="BRUTING">Bruting</SelectItem>
+                    <SelectItem value="POLISHING">Polishing</SelectItem>
+                    <SelectItem value="QC">Quality Control</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Notes</Label>
+                <Input value={notes} onChange={e => setNotes(e.target.value)} placeholder="Optional instructions" />
+              </div>
+              <DialogFooter>
+                <Button type="submit">Assign Job</Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Active Jobs</CardTitle>
+          <CardTitle>Active Production Jobs</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Job ID</TableHead>
-                <TableHead>Parcel ID</TableHead>
-                <TableHead>Stage</TableHead>
+                <TableHead>Parcel</TableHead>
                 <TableHead>Worker</TableHead>
+                <TableHead>Current Stage</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Due Date</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>Assigned Date</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {jobs.map((job) => (
+              {jobs.length === 0 ? (
+                <TableRow><TableCell colSpan={6} className="text-center">No active jobs found.</TableCell></TableRow>
+              ) : jobs.map((job) => (
                 <TableRow key={job.id}>
-                  <TableCell className="font-medium">{job.id}</TableCell>
-                  <TableCell>{job.parcel}</TableCell>
+                  <TableCell className="font-medium">#{job.id}</TableCell>
+                  <TableCell>{job.parcel_name || `Parcel #${job.parcel}`}</TableCell>
+                  <TableCell>{job.worker_name || `User #${job.assigned_worker}`}</TableCell>
                   <TableCell>
                     <Badge variant="outline">{job.stage}</Badge>
                   </TableCell>
-                  <TableCell>{job.worker}</TableCell>
                   <TableCell>
-                    <Badge variant={job.status === 'IN_PROGRESS' ? 'default' : 'secondary'}>
-                      {job.status.replace('_', ' ')}
+                    <Badge variant={job.status === 'DONE' ? 'default' : 'secondary'}>
+                      {job.status}
                     </Badge>
                   </TableCell>
-                  <TableCell>{job.dueDate}</TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="outline" size="sm">Update Status</Button>
-                  </TableCell>
+                  <TableCell>{job.assigned_date ? new Date(job.assigned_date).toLocaleDateString() : 'N/A'}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
