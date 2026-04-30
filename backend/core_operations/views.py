@@ -24,13 +24,16 @@ class RoughParcelViewSet(viewsets.ModelViewSet):
         parcel = serializer.save()
         # Automatically create the tracking record for the new parcel
         ParcelTracking.objects.create(parcel=parcel, status='IN_INVENTORY')
-        # Record Activity Log
-        from users.models import ActivityLog
-        ActivityLog.objects.create(
-            user=self.request.user,
-            action="PARCEL_CREATED",
-            details=f"Created rough parcel: {parcel.parcel_name} ({parcel.carat_weight} ct)"
-        )
+        # Record Activity Log safely
+        try:
+            from users.models import ActivityLog
+            ActivityLog.objects.create(
+                user=self.request.user,
+                action="PARCEL_CREATED",
+                details=f"Created rough parcel: {parcel.parcel_name} ({parcel.carat_weight} ct)"
+            )
+        except Exception as e:
+            print(f"Logging failed: {e}")
 
 class ParcelTrackingViewSet(viewsets.ModelViewSet):
     queryset = ParcelTracking.objects.all()

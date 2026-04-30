@@ -38,12 +38,15 @@ class QuotationViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         quote = serializer.save()
-        from users.models import ActivityLog
-        ActivityLog.objects.create(
-            user=self.request.user,
-            action="QUOTATION_CREATED",
-            details=f"Quoted ${quote.proposed_price} to {quote.buyer.company_name} for stone {quote.stone.stone_id}"
-        )
+        try:
+            from users.models import ActivityLog
+            ActivityLog.objects.create(
+                user=self.request.user,
+                action="QUOTATION_CREATED",
+                details=f"Quoted ${quote.proposed_price} to {quote.buyer.company_name} for stone {quote.stone.stone_id}"
+            )
+        except Exception as e:
+            print(f"Logging failed: {e}")
 
 class TransactionViewSet(viewsets.ModelViewSet):
     queryset = Transaction.objects.all()
