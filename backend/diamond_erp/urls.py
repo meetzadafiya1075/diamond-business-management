@@ -25,6 +25,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.static import serve
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -40,4 +41,5 @@ urlpatterns = [
     path('api/core/', include('core_operations.urls')),
     path('api/business/', include('business_operations.urls')),
     path('api/auth/', include('users.urls')),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    path('media/<path:path>', serve, {'document_root': settings.MEDIA_ROOT}),
+]

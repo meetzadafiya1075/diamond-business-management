@@ -82,7 +82,11 @@ export default function DocumentsPage() {
 
   const handleDownload = (fileUrl: string) => {
     if (!fileUrl) return
-    window.open(fileUrl, '_blank')
+    // Ensure the URL is absolute by prepending the backend base URL if needed
+    const absoluteUrl = fileUrl.startsWith('http') 
+      ? fileUrl 
+      : `${API_BASE_URL.replace('/api', '')}${fileUrl}`
+    window.open(absoluteUrl, '_blank')
   }
 
   return (
