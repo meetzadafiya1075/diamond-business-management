@@ -157,6 +157,8 @@ export default function SettingsPage() {
                                   <SelectItem value="PLANNER">Planner</SelectItem>
                                   <SelectItem value="WORKER">Worker</SelectItem>
                                   <SelectItem value="OFFICE">Office</SelectItem>
+                                  <SelectItem value="SALES">Sales</SelectItem>
+                                  <SelectItem value="ACCOUNTANT">Accountant</SelectItem>
                                 </SelectContent>
                               </Select>
                             </TableCell>
