@@ -1,6 +1,11 @@
 # Diamond Business Management ERP
 
+[![Live Demo](https://img.shields.io/badge/demo-live-green.svg)](https://diamond-business-management.vercel.app/)
+[![Vercel](https://img.shields.io/badge/deployed-vercel-black.svg)](https://diamond-business-management.vercel.app/)
+
 A professional, full-stack Enterprise Resource Planning (ERP) system designed specifically for diamond business operations. This system streamlines everything from rough purchase and planning to polished inventory management and sales.
+
+**🌐 Live Demo:** [https://diamond-business-management.vercel.app/](https://diamond-business-management.vercel.app/)
 
 ## 💎 Core Features
 
