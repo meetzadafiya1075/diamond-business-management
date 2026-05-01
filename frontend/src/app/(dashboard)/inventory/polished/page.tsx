@@ -32,6 +32,7 @@ export default function PolishedInventoryPage() {
   const [color, setColor] = useState("")
   const [clarity, setClarity] = useState("")
   const [certNo, setCertNo] = useState("")
+  const [price, setPrice] = useState("")
 
   useEffect(() => {
     loadData()
@@ -62,6 +63,7 @@ export default function PolishedInventoryPage() {
         color_grade: color,
         clarity_grade: clarity,
         certification_number: certNo,
+        price_estimate: price || 0,
         status: 'READY'
       })
       setIsDialogOpen(false)
@@ -142,6 +144,10 @@ export default function PolishedInventoryPage() {
                 <Label>Cert Number</Label>
                 <Input value={certNo} onChange={e => setCertNo(e.target.value)} placeholder="GIA Cert #" />
               </div>
+              <div className="space-y-2">
+                <Label>Price Estimate ($)</Label>
+                <Input type="number" value={price} onChange={e => setPrice(e.target.value)} placeholder="e.g. 5000" />
+              </div>
               <DialogFooter>
                 <Button type="submit">Add to Inventory</Button>
               </DialogFooter>
@@ -176,6 +182,7 @@ export default function PolishedInventoryPage() {
                 <TableHead>Color/Clarity</TableHead>
                 <TableHead>Cert #</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead className="text-right">Price</TableHead>
                 <TableHead className="text-right">Action</TableHead>
               </TableRow>
             </TableHeader>
@@ -204,6 +211,9 @@ export default function PolishedInventoryPage() {
                     <Badge variant={stone.status === 'READY' ? 'default' : 'secondary'}>
                       {stone.status}
                     </Badge>
+                  </TableCell>
+                  <TableCell className="text-right font-medium">
+                    ${Number(stone.price_estimate || 0).toLocaleString()}
                   </TableCell>
                   <TableCell className="text-right">
                     <Button 
