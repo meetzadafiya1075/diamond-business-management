@@ -17,8 +17,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Trash2, Plus, UserPlus, FileText } from "lucide-react"
+import { useCurrency } from "@/hooks/useCurrency"
 
 export default function SalesCRMPage() {
+  const { symbol } = useCurrency()
   const [buyers, setBuyers] = useState<any[]>([])
   const [quotations, setQuotations] = useState<any[]>([])
   const [stones, setStones] = useState<any[]>([])
@@ -187,7 +189,7 @@ export default function SalesCRMPage() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Offered Price (per carat)</Label>
+                  <Label>Offered Price ({symbol} per carat)</Label>
                   <Input type="number" value={offeredPrice} onChange={e => setOfferedPrice(e.target.value)} required />
                 </div>
                 <div className="space-y-2">
@@ -225,7 +227,7 @@ export default function SalesCRMPage() {
                   <TableRow key={q.id}>
                     <TableCell className="font-medium">{q.buyer_name || `Buyer #${q.buyer}`}</TableCell>
                     <TableCell>{q.stone_id || `Stone #${q.stone}`}</TableCell>
-                    <TableCell className="text-right">${q.proposed_price}</TableCell>
+                    <TableCell className="text-right">{symbol}{q.proposed_price}</TableCell>
                     <TableCell className="text-right">
                       <Button 
                         variant="ghost" 

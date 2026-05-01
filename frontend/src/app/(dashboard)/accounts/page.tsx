@@ -17,8 +17,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Trash2, Plus, DollarSign, Wallet } from "lucide-react"
+import { useCurrency } from "@/hooks/useCurrency"
 
 export default function AccountsPage() {
+  const { symbol } = useCurrency()
   const [transactions, setTransactions] = useState<any[]>([])
   const [expenses, setExpenses] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -129,7 +131,7 @@ export default function AccountsPage() {
                   <Input value={category} onChange={e => setCategory(e.target.value)} placeholder="e.g. Electricity, Rent" required />
                 </div>
                 <div className="space-y-2">
-                  <Label>Amount</Label>
+                  <Label>Amount ({symbol})</Label>
                   <Input type="number" value={expenseAmount} onChange={e => setExpenseAmount(e.target.value)} required />
                 </div>
                 <div className="space-y-2">
@@ -171,7 +173,7 @@ export default function AccountsPage() {
                   <Input value={partyName} onChange={e => setPartyName(e.target.value)} placeholder="Supplier or Buyer name" required />
                 </div>
                 <div className="space-y-2">
-                  <Label>Amount</Label>
+                  <Label>Amount ({symbol})</Label>
                   <Input type="number" value={txAmount} onChange={e => setTxAmount(e.target.value)} required />
                 </div>
                 <div className="space-y-2">
@@ -214,7 +216,7 @@ export default function AccountsPage() {
                       </div>
                     </TableCell>
                     <TableCell className={t.transaction_type === 'RECEIVABLE' ? 'text-green-600' : 'text-red-600'}>
-                      ${t.amount}
+                      {symbol}{t.amount}
                     </TableCell>
                     <TableCell>{t.due_date}</TableCell>
                     <TableCell className="text-right">
@@ -249,7 +251,7 @@ export default function AccountsPage() {
                 ) : expenses.map((e) => (
                   <TableRow key={e.id}>
                     <TableCell className="font-medium">{e.category}</TableCell>
-                    <TableCell>${e.amount}</TableCell>
+                    <TableCell>{symbol}{e.amount}</TableCell>
                     <TableCell>{e.date}</TableCell>
                     <TableCell className="text-right">
                       <Button variant="ghost" size="icon" className="text-red-500" onClick={() => handleDeleteExpense(e.id)}>

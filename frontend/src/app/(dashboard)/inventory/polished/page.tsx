@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Search, Plus, Trash2, ExternalLink } from "lucide-react"
 import { coreApi } from "@/lib/api"
+import { useCurrency } from "@/hooks/useCurrency"
 import { 
   Dialog, 
   DialogContent, 
@@ -19,6 +20,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export default function PolishedInventoryPage() {
+  const { symbol } = useCurrency()
   const [stones, setStones] = useState<any[]>([])
   const [parcels, setParcels] = useState<any[]>([])
   const [searchTerm, setSearchTerm] = useState("")
@@ -145,7 +147,7 @@ export default function PolishedInventoryPage() {
                 <Input value={certNo} onChange={e => setCertNo(e.target.value)} placeholder="GIA Cert #" />
               </div>
               <div className="space-y-2">
-                <Label>Price Estimate ($)</Label>
+                <Label>Price Estimate ({symbol})</Label>
                 <Input type="number" value={price} onChange={e => setPrice(e.target.value)} placeholder="e.g. 5000" />
               </div>
               <DialogFooter>
@@ -213,7 +215,7 @@ export default function PolishedInventoryPage() {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right font-medium">
-                    ${Number(stone.price_estimate || 0).toLocaleString()}
+                    {symbol}{Number(stone.price_estimate || 0).toLocaleString()}
                   </TableCell>
                   <TableCell className="text-right">
                     <Button 
