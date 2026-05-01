@@ -1,4 +1,4 @@
-# Diamond Business Management ERP
+# DiamondDoor
 
 [![Live Demo](https://img.shields.io/badge/demo-live-green.svg)](https://diamond-business-management.vercel.app/)
 [![Vercel](https://img.shields.io/badge/deployed-vercel-black.svg)](https://diamond-business-management.vercel.app/)
