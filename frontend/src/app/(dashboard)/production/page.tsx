@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { coreApi, authApi } from "@/lib/api"
+import { useUser } from "@/hooks/useUser"
 import { 
   Dialog, 
   DialogContent, 
@@ -24,6 +25,7 @@ export default function ProductionPage() {
   const [workers, setWorkers] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const { isPlanner, isWorker } = useUser()
 
   // Form State
   const [selectedParcel, setSelectedParcel] = useState("")
@@ -90,72 +92,74 @@ export default function ProductionPage() {
           <p className="text-muted-foreground mt-2">Monitor active jobs and manufacturing stages.</p>
         </div>
         
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger>
-            <div className="bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors cursor-pointer">
-              + Assign Job
-            </div>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Assign New Production Job</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleAssignJob} className="space-y-4">
-              <div className="space-y-2">
-                <Label>Select Parcel</Label>
-                <Select value={selectedParcel} onValueChange={(val: string | null) => setSelectedParcel(val || "")}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Choose parcel" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {parcels.length === 0 ? (
-                      <SelectItem value="none" disabled>No parcels available.</SelectItem>
-                    ) : parcels.map(p => (
-                      <SelectItem key={p.id} value={p.id.toString()}>{p.parcel_name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+        {(isPlanner || isWorker) && (
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger>
+              <div className="bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors cursor-pointer">
+                + Assign Job
               </div>
-              <div className="space-y-2">
-                <Label>Assign Worker</Label>
-                <Select value={selectedWorker} onValueChange={(val: string | null) => setSelectedWorker(val || "")}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select worker" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {workers.length === 0 ? (
-                      <SelectItem value="none" disabled>No workers found.</SelectItem>
-                    ) : workers.map(u => (
-                      <SelectItem key={u.id} value={u.id.toString()}>{u.username}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Initial Stage</Label>
-                <Select value={selectedStage} onValueChange={(val: string | null) => setSelectedStage(val || "MARKING")}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select stage" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="MARKING">Marking</SelectItem>
-                    <SelectItem value="SAWING">Sawing / Lasering</SelectItem>
-                    <SelectItem value="BRUTING">Bruting</SelectItem>
-                    <SelectItem value="POLISHING">Polishing</SelectItem>
-                    <SelectItem value="QC">Quality Control</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Notes</Label>
-                <Input value={notes} onChange={e => setNotes(e.target.value)} placeholder="Optional instructions" />
-              </div>
-              <DialogFooter>
-                <Button type="submit">Assign Job</Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Assign New Production Job</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleAssignJob} className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Select Parcel</Label>
+                  <Select value={selectedParcel} onValueChange={(val: string | null) => setSelectedParcel(val || "")}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose parcel" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {parcels.length === 0 ? (
+                        <SelectItem value="none" disabled>No parcels available.</SelectItem>
+                      ) : parcels.map(p => (
+                        <SelectItem key={p.id} value={p.id.toString()}>{p.parcel_name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Assign Worker</Label>
+                  <Select value={selectedWorker} onValueChange={(val: string | null) => setSelectedWorker(val || "")}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select worker" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {workers.length === 0 ? (
+                        <SelectItem value="none" disabled>No workers found.</SelectItem>
+                      ) : workers.map(u => (
+                        <SelectItem key={u.id} value={u.id.toString()}>{u.username}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Initial Stage</Label>
+                  <Select value={selectedStage} onValueChange={(val: string | null) => setSelectedStage(val || "MARKING")}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select stage" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="MARKING">Marking</SelectItem>
+                      <SelectItem value="SAWING">Sawing / Lasering</SelectItem>
+                      <SelectItem value="BRUTING">Bruting</SelectItem>
+                      <SelectItem value="POLISHING">Polishing</SelectItem>
+                      <SelectItem value="QC">Quality Control</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Notes</Label>
+                  <Input value={notes} onChange={e => setNotes(e.target.value)} placeholder="Optional instructions" />
+                </div>
+                <DialogFooter>
+                  <Button type="submit">Assign Job</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
       <Card>
@@ -193,14 +197,16 @@ export default function ProductionPage() {
                   </TableCell>
                   <TableCell>{job.assigned_date ? new Date(job.assigned_date).toLocaleDateString() : 'N/A'}</TableCell>
                   <TableCell className="text-right">
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                      onClick={() => handleDeleteJob(job.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    {(isPlanner || isWorker) && (
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                        onClick={() => handleDeleteJob(job.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}

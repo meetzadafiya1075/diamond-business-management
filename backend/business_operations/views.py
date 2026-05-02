@@ -6,35 +6,29 @@ from .serializers import (
     QuotationSerializer, TransactionSerializer, ExpenseSerializer, DocumentSerializer
 )
 
-from users.permissions import IsAdminRole
+from users.permissions import (
+    IsAdminRole, IsOfficeOrAdmin, IsSalesOrAdmin, IsAccountantOrAdmin
+)
 
 class BrokerViewSet(viewsets.ModelViewSet):
     queryset = Broker.objects.all()
     serializer_class = BrokerSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsOfficeOrAdmin]
 
 class BuyerViewSet(viewsets.ModelViewSet):
     queryset = Buyer.objects.all()
     serializer_class = BuyerSerializer
-    
-    def get_permissions(self):
-        if self.action in ['create', 'destroy', 'update', 'partial_update']:
-            return [IsAdminRole()]
-        return [IsAuthenticated()]
+    permission_classes = [IsOfficeOrAdmin]
 
 class InquiryViewSet(viewsets.ModelViewSet):
     queryset = Inquiry.objects.all()
     serializer_class = InquirySerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsOfficeOrAdmin]
 
 class QuotationViewSet(viewsets.ModelViewSet):
     queryset = Quotation.objects.all()
     serializer_class = QuotationSerializer
-
-    def get_permissions(self):
-        if self.action in ['create', 'destroy', 'update', 'partial_update']:
-            return [IsAdminRole()]
-        return [IsAuthenticated()]
+    permission_classes = [IsSalesOrAdmin]
 
     def perform_create(self, serializer):
         quote = serializer.save()
@@ -51,17 +45,17 @@ class QuotationViewSet(viewsets.ModelViewSet):
 class TransactionViewSet(viewsets.ModelViewSet):
     queryset = Transaction.objects.all()
     serializer_class = TransactionSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAccountantOrAdmin]
 
 class ExpenseViewSet(viewsets.ModelViewSet):
     queryset = Expense.objects.all()
     serializer_class = ExpenseSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAccountantOrAdmin]
 
 class DocumentViewSet(viewsets.ModelViewSet):
     queryset = Document.objects.all()
     serializer_class = DocumentSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsOfficeOrAdmin]
 
 from rest_framework.views import APIView
 from rest_framework.response import Response

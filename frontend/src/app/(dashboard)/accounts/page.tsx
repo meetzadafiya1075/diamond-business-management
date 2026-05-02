@@ -18,9 +18,11 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Trash2, Plus, DollarSign, Wallet } from "lucide-react"
 import { useCurrency } from "@/hooks/useCurrency"
+import { useUser } from "@/hooks/useUser"
 
 export default function AccountsPage() {
   const { symbol } = useCurrency()
+  const { isAccountant } = useUser()
   const [transactions, setTransactions] = useState<any[]>([])
   const [expenses, setExpenses] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -114,79 +116,81 @@ export default function AccountsPage() {
           <h1 className="text-3xl font-bold tracking-tight">Accounts & Finance</h1>
           <p className="text-muted-foreground mt-2">Manage transactions, expenses, and financial health.</p>
         </div>
-        <div className="flex gap-2">
-          <Dialog open={isExpenseDialogOpen} onOpenChange={setIsExpenseDialogOpen}>
-            <DialogTrigger>
-              <div className="bg-outline text-outline-foreground border border-input hover:bg-accent h-10 px-4 py-2 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors cursor-pointer">
-                <Wallet className="mr-2 h-4 w-4" /> Log Expense
-              </div>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Log Business Expense</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleCreateExpense} className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Category</Label>
-                  <Input value={category} onChange={e => setCategory(e.target.value)} placeholder="e.g. Electricity, Rent" required />
+        {isAccountant && (
+          <div className="flex gap-2">
+            <Dialog open={isExpenseDialogOpen} onOpenChange={setIsExpenseDialogOpen}>
+              <DialogTrigger>
+                <div className="bg-outline text-outline-foreground border border-input hover:bg-accent h-10 px-4 py-2 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors cursor-pointer">
+                  <Wallet className="mr-2 h-4 w-4" /> Log Expense
                 </div>
-                <div className="space-y-2">
-                  <Label>Amount ({symbol})</Label>
-                  <Input type="number" value={expenseAmount} onChange={e => setExpenseAmount(e.target.value)} required />
-                </div>
-                <div className="space-y-2">
-                  <Label>Date</Label>
-                  <Input type="date" value={expenseDate} onChange={e => setExpenseDate(e.target.value)} required />
-                </div>
-                <DialogFooter>
-                  <Button type="submit">Save Expense</Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Log Business Expense</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleCreateExpense} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Category</Label>
+                    <Input value={category} onChange={e => setCategory(e.target.value)} placeholder="e.g. Electricity, Rent" required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Amount ({symbol})</Label>
+                    <Input type="number" value={expenseAmount} onChange={e => setExpenseAmount(e.target.value)} required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Date</Label>
+                    <Input type="date" value={expenseDate} onChange={e => setExpenseDate(e.target.value)} required />
+                  </div>
+                  <DialogFooter>
+                    <Button type="submit">Save Expense</Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
 
-          <Dialog open={isTxDialogOpen} onOpenChange={setIsTxDialogOpen}>
-            <DialogTrigger>
-              <div className="bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors cursor-pointer">
-                <DollarSign className="mr-2 h-4 w-4" /> New Transaction
-              </div>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create New Transaction</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleCreateTransaction} className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Type</Label>
-                  <Select value={txType} onValueChange={(val: string | null) => setTxType(val || "PAYABLE")}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="PAYABLE">Payable (You Owe)</SelectItem>
-                      <SelectItem value="RECEIVABLE">Receivable (Customer Owes)</SelectItem>
-                    </SelectContent>
-                  </Select>
+            <Dialog open={isTxDialogOpen} onOpenChange={setIsTxDialogOpen}>
+              <DialogTrigger>
+                <div className="bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors cursor-pointer">
+                  <DollarSign className="mr-2 h-4 w-4" /> New Transaction
                 </div>
-                <div className="space-y-2">
-                  <Label>Party Name</Label>
-                  <Input value={partyName} onChange={e => setPartyName(e.target.value)} placeholder="Supplier or Buyer name" required />
-                </div>
-                <div className="space-y-2">
-                  <Label>Amount ({symbol})</Label>
-                  <Input type="number" value={txAmount} onChange={e => setTxAmount(e.target.value)} required />
-                </div>
-                <div className="space-y-2">
-                  <Label>Due Date</Label>
-                  <Input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} required />
-                </div>
-                <DialogFooter>
-                  <Button type="submit">Record Transaction</Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
-        </div>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Create New Transaction</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleCreateTransaction} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Type</Label>
+                    <Select value={txType} onValueChange={(val: string | null) => setTxType(val || "PAYABLE")}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="PAYABLE">Payable (You Owe)</SelectItem>
+                        <SelectItem value="RECEIVABLE">Receivable (Customer Owes)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Party Name</Label>
+                    <Input value={partyName} onChange={e => setPartyName(e.target.value)} placeholder="Supplier or Buyer name" required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Amount ({symbol})</Label>
+                    <Input type="number" value={txAmount} onChange={e => setTxAmount(e.target.value)} required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Due Date</Label>
+                    <Input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} required />
+                  </div>
+                  <DialogFooter>
+                    <Button type="submit">Record Transaction</Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
+        )}
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
@@ -220,9 +224,11 @@ export default function AccountsPage() {
                     </TableCell>
                     <TableCell>{t.due_date}</TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="icon" className="text-red-500" onClick={() => handleDeleteTransaction(t.id)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      {isAccountant && (
+                        <Button variant="ghost" size="icon" className="text-red-500" onClick={() => handleDeleteTransaction(t.id)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -254,9 +260,11 @@ export default function AccountsPage() {
                     <TableCell>{symbol}{e.amount}</TableCell>
                     <TableCell>{e.date}</TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="icon" className="text-red-500" onClick={() => handleDeleteExpense(e.id)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      {isAccountant && (
+                        <Button variant="ghost" size="icon" className="text-red-500" onClick={() => handleDeleteExpense(e.id)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}

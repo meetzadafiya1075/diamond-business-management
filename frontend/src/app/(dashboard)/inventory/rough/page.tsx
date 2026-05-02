@@ -5,10 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { coreApi } from "@/lib/api"
+import { useUser } from "@/hooks/useUser"
 
 export default function RoughInventoryPage() {
   const [inventory, setInventory] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const { isPlanner, isWorker } = useUser()
 
   const loadData = async () => {
     try {
@@ -77,21 +79,25 @@ export default function RoughInventoryPage() {
                     </TableCell>
                     <TableCell>{item.location}</TableCell>
                     <TableCell>
-                      <Select 
-                        value={item.status} 
-                        onValueChange={(val: string | null) => handleStatusChange(item.id, val || item.status)}
-                      >
-                        <SelectTrigger className="w-[180px]">
-                          <SelectValue placeholder="Change status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="IN_INVENTORY">In Inventory</SelectItem>
-                          <SelectItem value="IN_PLANNING">In Planning</SelectItem>
-                          <SelectItem value="IN_PRODUCTION">In Production</SelectItem>
-                          <SelectItem value="POLISHED">Polished (Ready)</SelectItem>
-                          <SelectItem value="SOLD">Sold</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      {isPlanner || isWorker ? (
+                        <Select 
+                          value={item.status} 
+                          onValueChange={(val: string | null) => handleStatusChange(item.id, val || item.status)}
+                        >
+                          <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="Change status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="IN_INVENTORY">In Inventory</SelectItem>
+                            <SelectItem value="IN_PLANNING">In Planning</SelectItem>
+                            <SelectItem value="IN_PRODUCTION">In Production</SelectItem>
+                            <SelectItem value="POLISHED">Polished (Ready)</SelectItem>
+                            <SelectItem value="SOLD">Sold</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <span className="text-sm text-muted-foreground italic">No edit permission</span>
+                      )}
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground">
                       {new Date(item.last_updated).toLocaleString()}

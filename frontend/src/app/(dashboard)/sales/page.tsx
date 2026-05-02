@@ -18,9 +18,11 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Trash2, Plus, UserPlus, FileText } from "lucide-react"
 import { useCurrency } from "@/hooks/useCurrency"
+import { useUser } from "@/hooks/useUser"
 
 export default function SalesCRMPage() {
   const { symbol } = useCurrency()
+  const { isSales, isOffice } = useUser()
   const [buyers, setBuyers] = useState<any[]>([])
   const [quotations, setQuotations] = useState<any[]>([])
   const [stones, setStones] = useState<any[]>([])
@@ -118,91 +120,93 @@ export default function SalesCRMPage() {
           <h1 className="text-3xl font-bold tracking-tight">Sales CRM</h1>
           <p className="text-muted-foreground mt-2">Manage customer relationships and track sales quotations.</p>
         </div>
-        <div className="flex gap-2">
-          <Dialog open={isBuyerDialogOpen} onOpenChange={setIsBuyerDialogOpen}>
-            <DialogTrigger>
-              <div className="bg-outline text-outline-foreground border border-input hover:bg-accent h-10 px-4 py-2 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors cursor-pointer">
-                <UserPlus className="mr-2 h-4 w-4" /> Add Buyer
-              </div>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Add New Buyer</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleAddBuyer} className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Company Name</Label>
-                  <Input value={companyName} onChange={e => setCompanyName(e.target.value)} required />
+        {(isSales || isOffice) && (
+          <div className="flex gap-2">
+            <Dialog open={isBuyerDialogOpen} onOpenChange={setIsBuyerDialogOpen}>
+              <DialogTrigger>
+                <div className="bg-outline text-outline-foreground border border-input hover:bg-accent h-10 px-4 py-2 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors cursor-pointer">
+                  <UserPlus className="mr-2 h-4 w-4" /> Add Buyer
                 </div>
-                <div className="space-y-2">
-                  <Label>Contact Person</Label>
-                  <Input value={contactPerson} onChange={e => setContactPerson(e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Email</Label>
-                  <Input type="email" value={email} onChange={e => setEmail(e.target.value)} />
-                </div>
-                <DialogFooter>
-                  <Button type="submit">Save Buyer</Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add New Buyer</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleAddBuyer} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Company Name</Label>
+                    <Input value={companyName} onChange={e => setCompanyName(e.target.value)} required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Contact Person</Label>
+                    <Input value={contactPerson} onChange={e => setContactPerson(e.target.value)} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Email</Label>
+                    <Input type="email" value={email} onChange={e => setEmail(e.target.value)} />
+                  </div>
+                  <DialogFooter>
+                    <Button type="submit">Save Buyer</Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
 
-          <Dialog open={isQuoteDialogOpen} onOpenChange={setIsQuoteDialogOpen}>
-            <DialogTrigger>
-              <div className="bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors cursor-pointer">
-                <FileText className="mr-2 h-4 w-4" /> New Quotation
-              </div>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create Sales Quotation</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleCreateQuotation} className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Select Buyer</Label>
-                  <Select value={selectedBuyer} onValueChange={(val: string | null) => setSelectedBuyer(val || "")}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Choose buyer" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {buyers.map(b => (
-                        <SelectItem key={b.id} value={b.id.toString()}>{b.company_name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+            <Dialog open={isQuoteDialogOpen} onOpenChange={setIsQuoteDialogOpen}>
+              <DialogTrigger>
+                <div className="bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors cursor-pointer">
+                  <FileText className="mr-2 h-4 w-4" /> New Quotation
                 </div>
-                <div className="space-y-2">
-                  <Label>Select Stone</Label>
-                  <Select value={selectedStone} onValueChange={(val: string | null) => setSelectedStone(val || "")}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Choose stone from inventory" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {stones.map(s => (
-                        <SelectItem key={s.id} value={s.id.toString()}>
-                          {s.stone_id} ({s.carat_weight} ct)
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Offered Price ({symbol} per carat)</Label>
-                  <Input type="number" value={offeredPrice} onChange={e => setOfferedPrice(e.target.value)} required />
-                </div>
-                <div className="space-y-2">
-                  <Label>Terms</Label>
-                  <Input value={terms} onChange={e => setTerms(e.target.value)} />
-                </div>
-                <DialogFooter>
-                  <Button type="submit">Send Quotation</Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
-        </div>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Create Sales Quotation</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleCreateQuotation} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Select Buyer</Label>
+                    <Select value={selectedBuyer} onValueChange={(val: string | null) => setSelectedBuyer(val || "")}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Choose buyer" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {buyers.map(b => (
+                          <SelectItem key={b.id} value={b.id.toString()}>{b.company_name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Select Stone</Label>
+                    <Select value={selectedStone} onValueChange={(val: string | null) => setSelectedStone(val || "")}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Choose stone from inventory" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {stones.map(s => (
+                          <SelectItem key={s.id} value={s.id.toString()}>
+                            {s.stone_id} ({s.carat_weight} ct)
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Offered Price ({symbol} per carat)</Label>
+                    <Input type="number" value={offeredPrice} onChange={e => setOfferedPrice(e.target.value)} required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Terms</Label>
+                    <Input value={terms} onChange={e => setTerms(e.target.value)} />
+                  </div>
+                  <DialogFooter>
+                    <Button type="submit">Send Quotation</Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
+        )}
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
@@ -229,14 +233,16 @@ export default function SalesCRMPage() {
                     <TableCell>{q.stone_id || `Stone #${q.stone}`}</TableCell>
                     <TableCell className="text-right">{symbol}{q.proposed_price}</TableCell>
                     <TableCell className="text-right">
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                        onClick={() => handleDeleteQuotation(q.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      {isSales && (
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                          onClick={() => handleDeleteQuotation(q.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -266,14 +272,16 @@ export default function SalesCRMPage() {
                     <TableCell className="font-medium">{b.company_name}</TableCell>
                     <TableCell>{b.contact_person || 'N/A'}</TableCell>
                     <TableCell className="text-right">
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                        onClick={() => handleDeleteBuyer(b.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      {isOffice && (
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                          onClick={() => handleDeleteBuyer(b.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}

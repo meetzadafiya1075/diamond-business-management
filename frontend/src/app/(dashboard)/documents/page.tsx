@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { businessApi, API_BASE_URL } from "@/lib/api"
 import { useRouter } from "next/navigation"
 import { Trash2 } from "lucide-react"
+import { useUser } from "@/hooks/useUser"
 
 import { 
   Dialog, 
@@ -32,6 +33,7 @@ export default function DocumentsPage() {
   const [isUploading, setIsUploading] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const router = useRouter()
+  const { isOffice } = useUser()
 
   // Form state
   const [title, setTitle] = useState("")
@@ -108,58 +110,60 @@ export default function DocumentsPage() {
           <p className="text-muted-foreground mt-2">Centralized storage for invoices, certificates, and KYC.</p>
         </div>
         
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger>
-            <div className="bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors cursor-pointer">
-              + Upload Document
-            </div>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Upload New Document</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleUpload} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="title">Document Title</Label>
-                <Input 
-                  id="title" 
-                  placeholder="e.g. Rough Purchase Invoice #102" 
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  required
-                />
+        {isOffice && (
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger>
+              <div className="bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors cursor-pointer">
+                + Upload Document
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="type">Category</Label>
-                <Select value={type} onValueChange={(val: any) => setType(val)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="INVOICE">Invoice</SelectItem>
-                    <SelectItem value="CERTIFICATE">Certificate</SelectItem>
-                    <SelectItem value="KYC">KYC Document</SelectItem>
-                    <SelectItem value="OTHER">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="file">File</Label>
-                <Input 
-                  id="file" 
-                  type="file" 
-                  onChange={(e) => setFile(e.target.files?.[0] || null)}
-                  required
-                />
-              </div>
-              <DialogFooter>
-                <Button type="submit" disabled={isUploading}>
-                  {isUploading ? "Uploading..." : "Start Upload"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Upload New Document</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleUpload} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="title">Document Title</Label>
+                  <Input 
+                    id="title" 
+                    placeholder="e.g. Rough Purchase Invoice #102" 
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="type">Category</Label>
+                  <Select value={type} onValueChange={(val: any) => setType(val)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="INVOICE">Invoice</SelectItem>
+                      <SelectItem value="CERTIFICATE">Certificate</SelectItem>
+                      <SelectItem value="KYC">KYC Document</SelectItem>
+                      <SelectItem value="OTHER">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="file">File</Label>
+                  <Input 
+                    id="file" 
+                    type="file" 
+                    onChange={(e) => setFile(e.target.files?.[0] || null)}
+                    required
+                  />
+                </div>
+                <DialogFooter>
+                  <Button type="submit" disabled={isUploading}>
+                    {isUploading ? "Uploading..." : "Start Upload"}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
       <Card>
@@ -202,14 +206,16 @@ export default function DocumentsPage() {
                       >
                         Download
                       </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                        onClick={() => handleDeleteDocument(doc.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      {isOffice && (
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                          onClick={() => handleDeleteDocument(doc.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}

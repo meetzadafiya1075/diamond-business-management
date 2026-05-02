@@ -9,16 +9,19 @@ from .serializers import (
     ParcelTrackingSerializer, PlanningRecordSerializer, 
     ProductionJobSerializer, YieldReportSerializer, PolishedStoneSerializer
 )
+from users.permissions import (
+    IsPlannerOrAdmin, IsWorkerOrAdmin, IsAccountantOrAdmin, IsSalesOrAdmin
+)
 
 class SupplierViewSet(viewsets.ModelViewSet):
     queryset = Supplier.objects.all()
     serializer_class = SupplierSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsPlannerOrAdmin]
 
 class RoughParcelViewSet(viewsets.ModelViewSet):
     queryset = RoughParcel.objects.all()
     serializer_class = RoughParcelSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsPlannerOrAdmin]
 
     def perform_create(self, serializer):
         parcel = serializer.save()
@@ -38,12 +41,12 @@ class RoughParcelViewSet(viewsets.ModelViewSet):
 class ParcelTrackingViewSet(viewsets.ModelViewSet):
     queryset = ParcelTracking.objects.all()
     serializer_class = ParcelTrackingSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsWorkerOrAdmin]
 
 class PlanningRecordViewSet(viewsets.ModelViewSet):
     queryset = PlanningRecord.objects.all()
     serializer_class = PlanningRecordSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsPlannerOrAdmin]
 
     def perform_create(self, serializer):
         plan = serializer.save()
@@ -55,14 +58,14 @@ class PlanningRecordViewSet(viewsets.ModelViewSet):
 class ProductionJobViewSet(viewsets.ModelViewSet):
     queryset = ProductionJob.objects.all()
     serializer_class = ProductionJobSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsWorkerOrAdmin]
 
 class YieldReportViewSet(viewsets.ModelViewSet):
     queryset = YieldReport.objects.all()
     serializer_class = YieldReportSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAccountantOrAdmin]
 
 class PolishedStoneViewSet(viewsets.ModelViewSet):
     queryset = PolishedStone.objects.all()
     serializer_class = PolishedStoneSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsSalesOrAdmin]
