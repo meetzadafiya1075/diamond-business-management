@@ -21,7 +21,7 @@ class SupplierViewSet(viewsets.ModelViewSet):
 class RoughParcelViewSet(viewsets.ModelViewSet):
     queryset = RoughParcel.objects.all()
     serializer_class = RoughParcelSerializer
-    permission_classes = [IsPlannerOrAdmin]
+    permission_classes = [IsWorkerOrAdmin]
 
     def perform_create(self, serializer):
         parcel = serializer.save()
