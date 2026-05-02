@@ -33,7 +33,12 @@ export async function fetchWithAuth(endpoint: string, options: RequestInit = {})
     throw new Error(message || 'API request failed');
   }
 
-  return response.json()
+  if (response.status === 204) {
+    return null
+  }
+
+  const text = await response.text()
+  return text ? JSON.parse(text) : {}
 }
 
 export const coreApi = {
