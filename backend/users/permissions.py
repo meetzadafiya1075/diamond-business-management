@@ -30,6 +30,18 @@ class BaseRolePermission(permissions.BasePermission):
 
 class IsAdminRole(BaseRolePermission):
     allowed_roles = ['ADMIN']
+    
+    def has_permission(self, request, view):
+        # 1. First check the base role/superuser logic
+        if super().has_permission(request, view):
+            return True
+            
+        # 2. Backup: Check Django's built-in is_staff flag
+        return bool(request.user and request.user.is_authenticated and (
+            request.user.is_staff or 
+            request.user.is_superuser or 
+            getattr(request.user, 'role', '').upper() == 'ADMIN'
+        ))
 
 class IsPlannerOrAdmin(BaseRolePermission):
     allowed_roles = ['PLANNER']
