@@ -68,4 +68,4 @@ class YieldReportViewSet(viewsets.ModelViewSet):
 class PolishedStoneViewSet(viewsets.ModelViewSet):
     queryset = PolishedStone.objects.all()
     serializer_class = PolishedStoneSerializer
-    permission_classes = [IsSalesOrAdmin]
+    permission_classes = [IsPlannerOrAdmin]

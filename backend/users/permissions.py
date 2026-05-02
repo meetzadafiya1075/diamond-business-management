@@ -32,7 +32,7 @@ class IsPlannerOrAdmin(BaseRolePermission):
     allowed_roles = ['PLANNER']
 
 class IsWorkerOrAdmin(BaseRolePermission):
-    allowed_roles = ['WORKER']
+    allowed_roles = ['WORKER', 'PLANNER']
 
 class IsOfficeOrAdmin(BaseRolePermission):
     allowed_roles = ['OFFICE']
