@@ -68,9 +68,9 @@ export default function WorkerManagementPage() {
     try {
       await authApi.deleteUser(id)
       loadData()
-    } catch (err) {
+    } catch (err: any) {
       console.error("Delete failed", err)
-      alert("Failed to delete user. You might not have permission.")
+      alert(`Failed to delete user: ${err.message}`)
     }
   }
 
