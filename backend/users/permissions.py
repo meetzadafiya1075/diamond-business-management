@@ -8,19 +8,21 @@ class BaseRolePermission(permissions.BasePermission):
     allowed_roles = []
 
     def has_permission(self, request, view):
+        # 1. Check if user is authenticated
         if not (request.user and request.user.is_authenticated):
             return False
         
-        # Admin always has full access
-        if request.user.role == 'ADMIN':
+        # 2. Admin always has full access to everything
+        user_role = getattr(request.user, 'role', '') or ''
+        if user_role.upper() == 'ADMIN':
             return True
             
-        # All authenticated users can view
+        # 3. All authenticated users can view (GET, HEAD, OPTIONS)
         if request.method in permissions.SAFE_METHODS:
             return True
             
-        # Check specific roles for mutations
-        return request.user.role in self.allowed_roles
+        # 4. Check specific roles for writing/editing (POST, PUT, PATCH, DELETE)
+        return user_role.upper() in [role.upper() for role in self.allowed_roles]
 
 class IsAdminRole(permissions.BasePermission):
     def has_permission(self, request, view):

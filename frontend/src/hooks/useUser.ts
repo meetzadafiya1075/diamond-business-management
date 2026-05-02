@@ -39,12 +39,13 @@ export function useUser() {
     fetchUser()
   }, [])
 
-  const isAdmin = userData?.role === 'ADMIN'
-  const isPlanner = userData?.role === 'PLANNER' || isAdmin
-  const isWorker = userData?.role === 'WORKER' || isAdmin
-  const isOffice = userData?.role === 'OFFICE' || isAdmin
-  const isSales = userData?.role === 'SALES' || isAdmin
-  const isAccountant = userData?.role === 'ACCOUNTANT' || isAdmin
+  const roleUpper = userData?.role?.toUpperCase() || ''
+  const isAdmin = roleUpper === 'ADMIN'
+  const isPlanner = roleUpper === 'PLANNER' || isAdmin
+  const isWorker = roleUpper === 'WORKER' || isAdmin
+  const isOffice = roleUpper === 'OFFICE' || isAdmin
+  const isSales = roleUpper === 'SALES' || isAdmin
+  const isAccountant = roleUpper === 'ACCOUNTANT' || isAdmin
 
   return { 
     userData, 
@@ -55,6 +56,6 @@ export function useUser() {
     isOffice, 
     isSales, 
     isAccountant,
-    role: userData?.role
+    role: roleUpper
   }
 }
