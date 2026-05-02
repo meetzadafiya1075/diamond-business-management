@@ -29,7 +29,9 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action in ['create', 'destroy', 'update', 'partial_update']:
+            # Only Admins can manage users
             return [IsAdminRole()]
+        # Authenticated users can see the list or their own 'me' data
         return [IsAuthenticated()]
 
     @action(detail=False, methods=['get'])
