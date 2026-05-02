@@ -11,12 +11,14 @@ import { coreApi } from "@/lib/api"
 import { useRouter } from "next/navigation"
 import { useCurrency } from "@/hooks/useCurrency"
 import { Trash2, ShoppingCart, UserPlus, PackagePlus } from "lucide-react"
+import { useUser } from "@/hooks/useUser"
 
 export default function RoughPurchasePage() {
   const { symbol } = useCurrency()
   const [parcels, setParcels] = useState<any[]>([])
   const [suppliers, setSuppliers] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const { isOffice } = useUser()
   
   // Form States
   const [newSupplierName, setNewSupplierName] = useState("")
@@ -120,78 +122,80 @@ export default function RoughPurchasePage() {
           <h1 className="text-3xl font-bold tracking-tight">Rough Purchase</h1>
           <p className="text-muted-foreground mt-2">Manage your rough diamond inward entries.</p>
         </div>
-        <div className="flex gap-2">
-          <Dialog open={isSupplierDialogOpen} onOpenChange={setIsSupplierDialogOpen}>
-            <DialogTrigger>
-              <div className="bg-outline text-outline-foreground border border-input hover:bg-accent h-10 px-4 py-2 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors cursor-pointer">
-                <UserPlus className="mr-2 h-4 w-4" /> New Supplier
-              </div>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Add New Supplier</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleAddSupplier} className="space-y-4 mt-4">
-                <div className="space-y-2">
-                  <Label>Supplier Name</Label>
-                  <Input required value={newSupplierName} onChange={e => setNewSupplierName(e.target.value)} />
+        {isOffice && (
+          <div className="flex gap-2">
+            <Dialog open={isSupplierDialogOpen} onOpenChange={setIsSupplierDialogOpen}>
+              <DialogTrigger>
+                <div className="bg-outline text-outline-foreground border border-input hover:bg-accent h-10 px-4 py-2 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors cursor-pointer">
+                  <UserPlus className="mr-2 h-4 w-4" /> New Supplier
                 </div>
-                <DialogFooter>
-                  <Button type="submit">Save Supplier</Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add New Supplier</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleAddSupplier} className="space-y-4 mt-4">
+                  <div className="space-y-2">
+                    <Label>Supplier Name</Label>
+                    <Input required value={newSupplierName} onChange={e => setNewSupplierName(e.target.value)} />
+                  </div>
+                  <DialogFooter>
+                    <Button type="submit">Save Supplier</Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
 
-          <Dialog open={isParcelDialogOpen} onOpenChange={setIsParcelDialogOpen}>
-            <DialogTrigger>
-              <div className="bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors cursor-pointer">
-                <PackagePlus className="mr-2 h-4 w-4" /> New Purchase
-              </div>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Add Rough Parcel</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleAddParcel} className="space-y-4 mt-4">
-                <div className="space-y-2">
-                  <Label>Parcel ID / Name</Label>
-                  <Input required value={parcelName} onChange={e => setParcelName(e.target.value)} placeholder="e.g. R-101" />
+            <Dialog open={isParcelDialogOpen} onOpenChange={setIsParcelDialogOpen}>
+              <DialogTrigger>
+                <div className="bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors cursor-pointer">
+                  <PackagePlus className="mr-2 h-4 w-4" /> New Purchase
                 </div>
-                <div className="space-y-2">
-                  <Label>Supplier</Label>
-                  <Select value={supplierId} onValueChange={(val: string | null) => setSupplierId(val || "")} required>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select supplier" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {suppliers.map(s => (
-                        <SelectItem key={s.id} value={s.id.toString()}>{s.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Purchase Date</Label>
-                  <Input type="date" required value={purchaseDate} onChange={e => setPurchaseDate(e.target.value)} />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add Rough Parcel</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleAddParcel} className="space-y-4 mt-4">
                   <div className="space-y-2">
-                    <Label>Weight (ct)</Label>
-                    <Input type="number" step="0.001" required value={caratWeight} onChange={e => setCaratWeight(e.target.value)} />
+                    <Label>Parcel ID / Name</Label>
+                    <Input required value={parcelName} onChange={e => setParcelName(e.target.value)} placeholder="e.g. R-101" />
                   </div>
                   <div className="space-y-2">
-                    <Label>Cost per ct ({symbol})</Label>
-                    <Input type="number" step="0.01" required value={costPerCarat} onChange={e => setCostPerCarat(e.target.value)} />
+                    <Label>Supplier</Label>
+                    <Select value={supplierId} onValueChange={(val: string | null) => setSupplierId(val || "")} required>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select supplier" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {suppliers.map(s => (
+                          <SelectItem key={s.id} value={s.id.toString()}>{s.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-                </div>
-                <DialogFooter>
-                  <Button type="submit" className="w-full">Save Parcel</Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
-        </div>
+                  <div className="space-y-2">
+                    <Label>Purchase Date</Label>
+                    <Input type="date" required value={purchaseDate} onChange={e => setPurchaseDate(e.target.value)} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Weight (ct)</Label>
+                      <Input type="number" step="0.001" required value={caratWeight} onChange={e => setCaratWeight(e.target.value)} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Cost per ct ({symbol})</Label>
+                      <Input type="number" step="0.01" required value={costPerCarat} onChange={e => setCostPerCarat(e.target.value)} />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button type="submit" className="w-full">Save Parcel</Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
+        )}
       </div>
 
       <Card>
@@ -226,14 +230,16 @@ export default function RoughPurchasePage() {
                     <TableCell className="text-right">{symbol}{p.cost_per_carat}</TableCell>
                     <TableCell className="text-right">{symbol}{p.total_cost}</TableCell>
                     <TableCell className="text-right">
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="text-red-500 hover:text-red-700"
-                        onClick={() => handleDeleteParcel(p.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      {isOffice && (
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="text-red-500 hover:text-red-700"
+                          onClick={() => handleDeleteParcel(p.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}

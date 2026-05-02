@@ -95,9 +95,7 @@ export default function RoughInventoryPage() {
                             <SelectItem value="SOLD">Sold</SelectItem>
                           </SelectContent>
                         </Select>
-                      ) : (
-                        <span className="text-sm text-muted-foreground italic">No edit permission</span>
-                      )}
+                      ) : null}
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground">
                       {new Date(item.last_updated).toLocaleString()}

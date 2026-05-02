@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { BarChart3, Plus, Trash2, TrendingUp, Sparkles } from "lucide-react"
+import { useUser } from "@/hooks/useUser"
 
 export default function YieldReportPage() {
   const [reports, setReports] = useState<any[]>([])
@@ -24,6 +25,7 @@ export default function YieldReportPage() {
   const [stones, setStones] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const { isAccountant } = useUser()
 
   // Form State
   const [selectedParcelId, setSelectedParcelId] = useState("")
@@ -96,62 +98,64 @@ export default function YieldReportPage() {
           <p className="text-muted-foreground mt-2">Monitor manufacturing efficiency and stone weight retention.</p>
         </div>
         
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger>
-            <div className="bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors cursor-pointer">
-              <Plus className="mr-2 h-4 w-4" /> Generate Report
-            </div>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>New Yield Analysis</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleGenerateReport} className="space-y-4">
-              <div className="space-y-2">
-                <Label>Select Finished Parcel</Label>
-                <Select value={selectedParcelId} onValueChange={(val: string | null) => {
-                  setSelectedParcelId(val || "")
-                  if (val) autoCalculateWeight(val)
-                }}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Choose parcel" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {parcels.map(p => (
-                      <SelectItem key={p.id} value={p.id.toString()}>
-                        {p.parcel_name} ({p.carat_weight} ct)
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+        {isAccountant && (
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger>
+              <div className="bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors cursor-pointer">
+                <Plus className="mr-2 h-4 w-4" /> Generate Report
               </div>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <Label>Final Polished Weight (ct)</Label>
-                  <Button 
-                    type="button" 
-                    variant="ghost" 
-                    className="h-6 text-xs text-blue-600 gap-1"
-                    onClick={() => autoCalculateWeight(selectedParcelId)}
-                  >
-                    <Sparkles className="h-3 w-3" /> Auto-sum from Inventory
-                  </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>New Yield Analysis</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleGenerateReport} className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Select Finished Parcel</Label>
+                  <Select value={selectedParcelId} onValueChange={(val: string | null) => {
+                    setSelectedParcelId(val || "")
+                    if (val) autoCalculateWeight(val)
+                  }}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose parcel" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {parcels.map(p => (
+                        <SelectItem key={p.id} value={p.id.toString()}>
+                          {p.parcel_name} ({p.carat_weight} ct)
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-                <Input 
-                  type="number" 
-                  step="0.001" 
-                  value={polishedWeight} 
-                  onChange={e => setPolishedWeight(e.target.value)} 
-                  placeholder="Total weight of all stones produced"
-                  required 
-                />
-              </div>
-              <DialogFooter>
-                <Button type="submit">Calculate & Save Report</Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <Label>Final Polished Weight (ct)</Label>
+                    <Button 
+                      type="button" 
+                      variant="ghost" 
+                      className="h-6 text-xs text-blue-600 gap-1"
+                      onClick={() => autoCalculateWeight(selectedParcelId)}
+                    >
+                      <Sparkles className="h-3 w-3" /> Auto-sum from Inventory
+                    </Button>
+                  </div>
+                  <Input 
+                    type="number" 
+                    step="0.001" 
+                    value={polishedWeight} 
+                    onChange={e => setPolishedWeight(e.target.value)} 
+                    placeholder="Total weight of all stones produced"
+                    required 
+                  />
+                </div>
+                <DialogFooter>
+                  <Button type="submit">Calculate & Save Report</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
@@ -203,9 +207,11 @@ export default function YieldReportPage() {
                     -{(parseFloat(report.rough_weight) - parseFloat(report.final_polished_carats)).toFixed(3)}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="icon" className="text-red-500" onClick={() => handleDeleteReport(report.id)}>
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    {isAccountant && (
+                      <Button variant="ghost" size="icon" className="text-red-500" onClick={() => handleDeleteReport(report.id)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}

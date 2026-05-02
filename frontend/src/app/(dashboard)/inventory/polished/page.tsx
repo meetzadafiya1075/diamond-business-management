@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Search, Plus, Trash2, ExternalLink } from "lucide-react"
 import { coreApi } from "@/lib/api"
 import { useCurrency } from "@/hooks/useCurrency"
+import { useUser } from "@/hooks/useUser"
 import { 
   Dialog, 
   DialogContent, 
@@ -26,6 +27,7 @@ export default function PolishedInventoryPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [loading, setLoading] = useState(true)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const { isPlanner } = useUser()
 
   // Form State
   const [stoneId, setStoneId] = useState("")
@@ -98,64 +100,66 @@ export default function PolishedInventoryPage() {
           <p className="text-muted-foreground mt-2">Manage your stock of certified polished diamonds.</p>
         </div>
         
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger>
-            <div className="bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors cursor-pointer">
-              <Plus className="mr-2 h-4 w-4" /> Stock In Stone
-            </div>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add Polished Stone to Stock</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleAddStone} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Stone ID</Label>
-                  <Input value={stoneId} onChange={e => setStoneId(e.target.value)} placeholder="e.g. DIA-001" required />
+        {isPlanner && (
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger>
+              <div className="bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors cursor-pointer">
+                <Plus className="mr-2 h-4 w-4" /> Stock In Stone
+              </div>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add Polished Stone to Stock</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleAddStone} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Stone ID</Label>
+                    <Input value={stoneId} onChange={e => setStoneId(e.target.value)} placeholder="e.g. DIA-001" required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Carats</Label>
+                    <Input type="number" step="0.001" value={carats} onChange={e => setCarats(e.target.value)} required />
+                  </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>Carats</Label>
-                  <Input type="number" step="0.001" value={carats} onChange={e => setCarats(e.target.value)} required />
+                  <Label>Source Parcel (Optional)</Label>
+                  <Select value={sourceParcel} onValueChange={(val: string | null) => setSourceParcel(val || "")}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select origin parcel" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {parcels.map(p => (
+                        <SelectItem key={p.id} value={p.id.toString()}>{p.parcel_name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <Label>Source Parcel (Optional)</Label>
-                <Select value={sourceParcel} onValueChange={(val: string | null) => setSourceParcel(val || "")}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select origin parcel" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {parcels.map(p => (
-                      <SelectItem key={p.id} value={p.id.toString()}>{p.parcel_name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Color</Label>
+                    <Input value={color} onChange={e => setColor(e.target.value)} placeholder="e.g. D" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Clarity</Label>
+                    <Input value={clarity} onChange={e => setClarity(e.target.value)} placeholder="e.g. VVS1" />
+                  </div>
+                </div>
                 <div className="space-y-2">
-                  <Label>Color</Label>
-                  <Input value={color} onChange={e => setColor(e.target.value)} placeholder="e.g. D" />
+                  <Label>Cert Number</Label>
+                  <Input value={certNo} onChange={e => setCertNo(e.target.value)} placeholder="GIA Cert #" />
                 </div>
                 <div className="space-y-2">
-                  <Label>Clarity</Label>
-                  <Input value={clarity} onChange={e => setClarity(e.target.value)} placeholder="e.g. VVS1" />
+                  <Label>Price Estimate ({symbol})</Label>
+                  <Input type="number" value={price} onChange={e => setPrice(e.target.value)} placeholder="e.g. 5000" />
                 </div>
-              </div>
-              <div className="space-y-2">
-                <Label>Cert Number</Label>
-                <Input value={certNo} onChange={e => setCertNo(e.target.value)} placeholder="GIA Cert #" />
-              </div>
-              <div className="space-y-2">
-                <Label>Price Estimate ({symbol})</Label>
-                <Input type="number" value={price} onChange={e => setPrice(e.target.value)} placeholder="e.g. 5000" />
-              </div>
-              <DialogFooter>
-                <Button type="submit">Add to Inventory</Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+                <DialogFooter>
+                  <Button type="submit">Add to Inventory</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
       <div className="flex items-center gap-4">
@@ -218,14 +222,16 @@ export default function PolishedInventoryPage() {
                     {symbol}{Number(stone.price_estimate || 0).toLocaleString()}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                      onClick={() => handleDeleteStone(stone.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    {isPlanner && (
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                        onClick={() => handleDeleteStone(stone.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
