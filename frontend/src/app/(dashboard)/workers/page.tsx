@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { authApi } from "@/lib/api"
+import { useUser } from "@/hooks/useUser"
 import { 
   Dialog, 
   DialogContent, 
@@ -22,6 +23,7 @@ export default function WorkerManagementPage() {
   const [workers, setWorkers] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const { isAdmin } = useUser()
 
   // Form State
   const [username, setUsername] = useState("")
@@ -80,44 +82,49 @@ export default function WorkerManagementPage() {
           <p className="text-muted-foreground mt-2">Manage your team, roles, and access permissions.</p>
         </div>
         
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger>
-            <div className="bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors cursor-pointer">
-              <UserPlus className="mr-2 h-4 w-4" /> Add Member
-            </div>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add New Team Member</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleAddWorker} className="space-y-4">
-              <div className="space-y-2">
-                <Label>Username</Label>
-                <Input value={username} onChange={e => setUsername(e.target.value)} required />
+        {isAdmin && (
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger>
+              <div className="bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors cursor-pointer">
+                <UserPlus className="mr-2 h-4 w-4" /> Add Member
               </div>
-              <div className="space-y-2">
-                <Label>Temporary Password</Label>
-                <Input type="password" value={password} onChange={e => setPassword(e.target.value)} required />
-              </div>
-              <div className="space-y-2">
-                <Label>Role</Label>
-                <Select value={role} onValueChange={(val: string | null) => setRole(val || "WORKER")}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="WORKER">Worker (Production)</SelectItem>
-                    <SelectItem value="PLANNER">Planner (Management)</SelectItem>
-                    <SelectItem value="ADMIN">Admin (Full Access)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <DialogFooter>
-                <Button type="submit">Create Account</Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add New Team Member</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleAddWorker} className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Username</Label>
+                  <Input value={username} onChange={e => setUsername(e.target.value)} required />
+                </div>
+                <div className="space-y-2">
+                  <Label>Temporary Password</Label>
+                  <Input type="password" value={password} onChange={e => setPassword(e.target.value)} required />
+                </div>
+                <div className="space-y-2">
+                  <Label>Role</Label>
+                  <Select value={role} onValueChange={(val: string | null) => setRole(val || "WORKER")}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="WORKER">Worker (Production)</SelectItem>
+                      <SelectItem value="PLANNER">Planner (Management)</SelectItem>
+                      <SelectItem value="OFFICE">Office Staff</SelectItem>
+                      <SelectItem value="SALES">Sales Rep</SelectItem>
+                      <SelectItem value="ACCOUNTANT">Accountant</SelectItem>
+                      <SelectItem value="ADMIN">Admin (Full Access)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <DialogFooter>
+                  <Button type="submit">Create Account</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
       <Card>
@@ -150,14 +157,16 @@ export default function WorkerManagementPage() {
                     <TableCell className="text-right">
                       <div className="flex justify-end items-center gap-2">
                         <Badge className="bg-green-600">Active</Badge>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                          onClick={() => handleDeleteWorker(worker.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        {isAdmin && (
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                            onClick={() => handleDeleteWorker(worker.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
