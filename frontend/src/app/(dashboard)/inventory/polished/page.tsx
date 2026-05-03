@@ -27,7 +27,7 @@ export default function PolishedInventoryPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [loading, setLoading] = useState(true)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const { isPlanner } = useUser()
+  const { isPlanner, isAdmin } = useUser()
 
   // Form State
   const [stoneId, setStoneId] = useState("")
@@ -100,7 +100,7 @@ export default function PolishedInventoryPage() {
           <p className="text-muted-foreground mt-2">Manage your stock of certified polished diamonds.</p>
         </div>
         
-        {isPlanner && (
+        {(isPlanner || isAdmin) && (
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger>
               <div className="bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors cursor-pointer">
@@ -222,7 +222,7 @@ export default function PolishedInventoryPage() {
                     {symbol}{Number(stone.price_estimate || 0).toLocaleString()}
                   </TableCell>
                   <TableCell className="text-right">
-                    {isPlanner && (
+                    {(isPlanner || isAdmin) && (
                       <Button 
                         variant="ghost" 
                         size="icon" 

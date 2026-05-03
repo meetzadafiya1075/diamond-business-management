@@ -18,7 +18,7 @@ export default function RoughPurchasePage() {
   const [parcels, setParcels] = useState<any[]>([])
   const [suppliers, setSuppliers] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const { isWorker } = useUser()
+  const { isWorker, isAdmin } = useUser()
   
   // Form States
   const [newSupplierName, setNewSupplierName] = useState("")
@@ -122,7 +122,7 @@ export default function RoughPurchasePage() {
           <h1 className="text-3xl font-bold tracking-tight">Rough Purchase</h1>
           <p className="text-muted-foreground mt-2">Manage your rough diamond inward entries.</p>
         </div>
-        {isWorker && (
+        {(isWorker || isAdmin) && (
           <div className="flex gap-2">
             <Dialog open={isSupplierDialogOpen} onOpenChange={setIsSupplierDialogOpen}>
               <DialogTrigger>
@@ -230,7 +230,7 @@ export default function RoughPurchasePage() {
                     <TableCell className="text-right">{symbol}{p.cost_per_carat}</TableCell>
                     <TableCell className="text-right">{symbol}{p.total_cost}</TableCell>
                     <TableCell className="text-right">
-                      {isWorker && (
+                      {(isWorker || isAdmin) && (
                         <Button 
                           variant="ghost" 
                           size="icon" 

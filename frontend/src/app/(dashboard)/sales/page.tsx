@@ -22,7 +22,7 @@ import { useUser } from "@/hooks/useUser"
 
 export default function SalesCRMPage() {
   const { symbol } = useCurrency()
-  const { isSales, isOffice } = useUser()
+  const { isSales, isOffice, isAdmin } = useUser()
   const [buyers, setBuyers] = useState<any[]>([])
   const [quotations, setQuotations] = useState<any[]>([])
   const [stones, setStones] = useState<any[]>([])
@@ -120,7 +120,7 @@ export default function SalesCRMPage() {
           <h1 className="text-3xl font-bold tracking-tight">Sales CRM</h1>
           <p className="text-muted-foreground mt-2">Manage customer relationships and track sales quotations.</p>
         </div>
-        {(isSales || isOffice) && (
+        {(isSales || isOffice || isAdmin) && (
           <div className="flex gap-2">
             <Dialog open={isBuyerDialogOpen} onOpenChange={setIsBuyerDialogOpen}>
               <DialogTrigger>
@@ -233,7 +233,7 @@ export default function SalesCRMPage() {
                     <TableCell>{q.stone_id || `Stone #${q.stone}`}</TableCell>
                     <TableCell className="text-right">{symbol}{q.proposed_price}</TableCell>
                     <TableCell className="text-right">
-                      {isSales && (
+                      {(isSales || isAdmin) && (
                         <Button 
                           variant="ghost" 
                           size="icon" 
@@ -272,7 +272,7 @@ export default function SalesCRMPage() {
                     <TableCell className="font-medium">{b.company_name}</TableCell>
                     <TableCell>{b.contact_person || 'N/A'}</TableCell>
                     <TableCell className="text-right">
-                      {isOffice && (
+                      {(isOffice || isAdmin) && (
                         <Button 
                           variant="ghost" 
                           size="icon" 

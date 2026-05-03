@@ -16,9 +16,9 @@ class BaseRolePermission(permissions.BasePermission):
         if request.user.is_superuser:
             return True
 
-        # 3. Check if user has an allowed role
-        user_role = getattr(request.user, 'role', '')
-        if user_role and user_role.upper() in [role.upper() for role in self.allowed_roles]:
+        # 3. Check if user has an allowed role or is an Admin
+        user_role = getattr(request.user, 'role', '').upper()
+        if user_role == 'ADMIN' or user_role in [role.upper() for role in self.allowed_roles]:
             return True
 
         # 4. All authenticated users can view (GET, HEAD, OPTIONS)
