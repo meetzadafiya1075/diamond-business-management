@@ -70,7 +70,7 @@ class ProductionJob(models.Model):
     
     parcel = models.ForeignKey(RoughParcel, on_delete=models.CASCADE, related_name='production_jobs')
     stage = models.CharField(max_length=50, choices=STAGE_CHOICES, default='MARKING')
-    assigned_worker = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    assigned_worker = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, limit_choices_to={'role': 'WORKER'})
     assigned_date = models.DateTimeField(auto_now_add=True)
     completion_date = models.DateTimeField(blank=True, null=True)
     status = models.CharField(max_length=50, choices=(('PENDING', 'Pending'), ('IN_PROGRESS', 'In Progress'), ('DONE', 'Done')), default='PENDING')

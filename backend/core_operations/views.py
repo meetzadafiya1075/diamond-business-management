@@ -10,7 +10,7 @@ from .serializers import (
     ProductionJobSerializer, YieldReportSerializer, PolishedStoneSerializer
 )
 from users.permissions import (
-    IsPlannerOrAdmin, IsWorkerOrAdmin, IsAccountantOrAdmin, IsSalesOrAdmin
+    IsPlannerOrAdmin, IsWorkerOrAdmin, IsAccountantOrAdmin, IsSalesOrAdmin, IsProductionTeam
 )
 
 class SupplierViewSet(viewsets.ModelViewSet):
@@ -58,7 +58,7 @@ class PlanningRecordViewSet(viewsets.ModelViewSet):
 class ProductionJobViewSet(viewsets.ModelViewSet):
     queryset = ProductionJob.objects.all()
     serializer_class = ProductionJobSerializer
-    permission_classes = [IsWorkerOrAdmin]
+    permission_classes = [IsProductionTeam]
 
 class YieldReportViewSet(viewsets.ModelViewSet):
     queryset = YieldReport.objects.all()

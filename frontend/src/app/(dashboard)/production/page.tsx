@@ -25,7 +25,8 @@ export default function ProductionPage() {
   const [workers, setWorkers] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const { isPlanner, isWorker } = useUser()
+  const { isPlanner, isWorker, isAdmin } = useUser()
+  const canManage = isAdmin || isPlanner
 
   // Form State
   const [selectedParcel, setSelectedParcel] = useState("")
@@ -52,6 +53,16 @@ export default function ProductionPage() {
       console.error("Failed to load production data", err)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleStatusChange = async (jobId: number, newStatus: string) => {
+    try {
+      await coreApi.updateProductionJob(jobId, { status: newStatus })
+      loadData()
+    } catch (err) {
+      console.error("Status update failed", err)
+      alert("Failed to update status")
     }
   }
 
@@ -92,7 +103,7 @@ export default function ProductionPage() {
           <p className="text-muted-foreground mt-2">Monitor active jobs and manufacturing stages.</p>
         </div>
         
-        {(isPlanner || isWorker) && (
+        {canManage && (
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger>
               <div className="bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors cursor-pointer">
@@ -126,9 +137,9 @@ export default function ProductionPage() {
                       <SelectValue placeholder="Select worker" />
                     </SelectTrigger>
                     <SelectContent>
-                      {workers.length === 0 ? (
+                      {workers.filter(u => u.role?.toUpperCase() === 'WORKER').length === 0 ? (
                         <SelectItem value="none" disabled>No workers found.</SelectItem>
-                      ) : workers.map(u => (
+                      ) : workers.filter(u => u.role?.toUpperCase() === 'WORKER').map(u => (
                         <SelectItem key={u.id} value={u.id.toString()}>{u.username}</SelectItem>
                       ))}
                     </SelectContent>
@@ -191,13 +202,29 @@ export default function ProductionPage() {
                     <Badge variant="outline">{job.stage}</Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={job.status === 'DONE' ? 'default' : 'secondary'}>
-                      {job.status}
-                    </Badge>
+                    {(isWorker || isAdmin) ? (
+                      <Select 
+                        value={job.status} 
+                        onValueChange={(val: string | null) => handleStatusChange(job.id, val || job.status)}
+                      >
+                        <SelectTrigger className="w-[120px] h-8">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="PENDING">Pending</SelectItem>
+                          <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+                          <SelectItem value="DONE">Done</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <Badge variant={job.status === 'DONE' ? 'default' : 'secondary'}>
+                        {job.status}
+                      </Badge>
+                    )}
                   </TableCell>
                   <TableCell>{job.assigned_date ? new Date(job.assigned_date).toLocaleDateString() : 'N/A'}</TableCell>
                   <TableCell className="text-right">
-                    {(isPlanner || isWorker) && (
+                    {canManage && (
                       <Button 
                         variant="ghost" 
                         size="icon" 

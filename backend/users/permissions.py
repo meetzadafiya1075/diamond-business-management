@@ -55,3 +55,9 @@ class IsSalesOrAdmin(BaseRolePermission):
 
 class IsAccountantOrAdmin(BaseRolePermission):
     allowed_roles = ['ACCOUNTANT']
+
+class IsProductionTeam(BaseRolePermission):
+    """
+    Allows access to anyone in the production cycle: Admin, Planner, or Worker.
+    """
+    allowed_roles = ['PLANNER', 'WORKER']
