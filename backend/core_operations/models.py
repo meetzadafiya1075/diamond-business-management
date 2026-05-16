@@ -37,6 +37,7 @@ class ParcelTracking(models.Model):
         ('IN_PLANNING', 'In Planning'),
         ('IN_PRODUCTION', 'In Production'),
         ('POLISHED', 'Polished (Completed)'),
+        ('SOLD', 'Sold'),
     )
     
     parcel = models.OneToOneField(RoughParcel, on_delete=models.CASCADE, related_name='tracking')
