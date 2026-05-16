@@ -38,48 +38,21 @@ export default function PlanningPage() {
 
   const loadData = async () => {
     try {
-      const [planData, parcelData, trackingData, userData] = await Promise.all([
+      const [planData, parcelData, userData] = await Promise.all([
         coreApi.getPlanningRecords(),
         coreApi.getRoughParcels(),
-        coreApi.getParcelTracking(),
         authApi.getUsers()
       ])
       
       const allPlans = Array.isArray(planData) ? planData : planData.results || []
       const allParcels = Array.isArray(parcelData) ? parcelData : parcelData.results || []
-      const allTracking = Array.isArray(trackingData) ? trackingData : trackingData.results || []
       const allUsers = Array.isArray(userData) ? userData : userData.results || []
-
-      console.log("Debug Planning Data:", { allPlans, allParcels, allTracking })
 
       setPlans(allPlans)
 
-      // IDs of parcels that already have a plan
       const plannedIds = allPlans.map((p: any) => p.parcel.toString())
+      const filteredParcels = allParcels.filter((p: any) => !plannedIds.includes(p.id.toString()))
       
-      // IDs of parcels that are in planning status
-      const inPlanningIdsFromTracking = allTracking
-        .filter((t: any) => t.status === 'IN_PLANNING')
-        .map((t: any) => t.parcel.toString())
-
-      const filteredParcels = allParcels.filter((p: any) => {
-        const idStr = p.id.toString()
-        
-        // 1. Check nested tracking status (if available)
-        const nestedStatus = p.tracking?.status?.toUpperCase() || ""
-        
-        // 2. Check global tracking list status
-        const trackingRecord = allTracking.find((t: any) => (t.parcel?.id || t.parcel).toString() === idStr)
-        const globalStatus = trackingRecord?.status?.toUpperCase() || ""
-        
-        const isStatPlanning = nestedStatus.includes('PLANNING') || globalStatus.includes('PLANNING')
-        const isNotPlannedYet = !plannedIds.includes(idStr)
-        
-        console.log(`Parcel ${p.parcel_name} (ID: ${idStr}):`, { nestedStatus, globalStatus, isStatPlanning, isNotPlannedYet })
-        return isStatPlanning && isNotPlannedYet
-      })
-      
-      console.log("Filtered Parcels (Strict Planning):", filteredParcels)
       setParcels(filteredParcels)
       setPlanners(allUsers.filter((u: any) => u.role === 'PLANNER' || u.role === 'ADMIN'))
     } catch (err) {
@@ -152,7 +125,7 @@ export default function PlanningPage() {
                         <SelectItem value="none" disabled>No parcels available. Add some in Rough Purchase.</SelectItem>
                       ) : parcels.map(p => (
                         <SelectItem key={p.id} value={p.id.toString()}>
-                          {p.parcel_name} ({p.carat_weight} ct) - {p.tracking?.status || 'No Status'}
+                          {p.parcel_name} ({p.carat_weight} ct)
                         </SelectItem>
                       ))}
                     </SelectContent>
