@@ -64,15 +64,22 @@ export default function PlanningPage() {
 
       const filteredParcels = allParcels.filter((p: any) => {
         const idStr = p.id.toString()
-        // TEMPORARY: Removing status check to ensure you can see your parcels
-        // We only filter out parcels that already have a plan saved
+        
+        // 1. Check nested tracking status (if available)
+        const nestedStatus = p.tracking?.status?.toUpperCase() || ""
+        
+        // 2. Check global tracking list status
+        const trackingRecord = allTracking.find((t: any) => (t.parcel?.id || t.parcel).toString() === idStr)
+        const globalStatus = trackingRecord?.status?.toUpperCase() || ""
+        
+        const isStatPlanning = nestedStatus.includes('PLANNING') || globalStatus.includes('PLANNING')
         const isNotPlannedYet = !plannedIds.includes(idStr)
         
-        console.log(`Parcel ${p.parcel_name} (ID: ${idStr}):`, { isNotPlannedYet })
-        return isNotPlannedYet
+        console.log(`Parcel ${p.parcel_name} (ID: ${idStr}):`, { nestedStatus, globalStatus, isStatPlanning, isNotPlannedYet })
+        return isStatPlanning && isNotPlannedYet
       })
       
-      console.log("Filtered Parcels (Unfiltered by status):", filteredParcels)
+      console.log("Filtered Parcels (Strict Planning):", filteredParcels)
       setParcels(filteredParcels)
       setPlanners(allUsers.filter((u: any) => u.role === 'PLANNER' || u.role === 'ADMIN'))
     } catch (err) {
