@@ -69,6 +69,7 @@ export const coreApi = {
   getPolishedStones: () => fetchWithAuth('/core/polished-stones/'),
   createPolishedStone: (data: any) => fetchWithAuth('/core/polished-stones/', { method: 'POST', body: JSON.stringify(data) }),
   deletePolishedStone: (id: number) => fetchWithAuth(`/core/polished-stones/${id}/`, { method: 'DELETE' }),
+  updatePolishedStone: (id: number, data: any) => fetchWithAuth(`/core/polished-stones/${id}/`, { method: 'PATCH', body: JSON.stringify(data) }),
 }
 
 export const businessApi = {

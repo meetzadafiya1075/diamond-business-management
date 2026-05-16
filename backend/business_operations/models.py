@@ -36,7 +36,7 @@ class Inquiry(models.Model):
 class Quotation(models.Model):
     buyer = models.ForeignKey(Buyer, on_delete=models.CASCADE, related_name='quotations')
     broker = models.ForeignKey(Broker, on_delete=models.SET_NULL, null=True, blank=True)
-    stone = models.ForeignKey(PolishedStone, on_delete=models.CASCADE)
+    stone = models.ForeignKey(PolishedStone, on_delete=models.SET_NULL, null=True, blank=True)
     proposed_price = models.DecimalField(max_digits=15, decimal_places=2)
     status = models.CharField(max_length=50, choices=(('PENDING', 'Pending'), ('ACCEPTED', 'Accepted'), ('REJECTED', 'Rejected')), default='PENDING')
     created_at = models.DateTimeField(auto_now_add=True)

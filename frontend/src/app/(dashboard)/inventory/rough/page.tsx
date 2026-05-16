@@ -10,7 +10,7 @@ import { useUser } from "@/hooks/useUser"
 export default function RoughInventoryPage() {
   const [inventory, setInventory] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const { isWorker, isAdmin } = useUser()
+  const { isWorker, isPlanner, isAdmin } = useUser()
 
   const loadData = async () => {
     try {
@@ -79,7 +79,7 @@ export default function RoughInventoryPage() {
                     </TableCell>
                     <TableCell>{item.location}</TableCell>
                     <TableCell>
-                      {(isWorker || isAdmin) ? (
+                      {(isWorker || isPlanner || isAdmin) ? (
                         <Select 
                           value={item.status} 
                           onValueChange={(val: string | null) => handleStatusChange(item.id, val || item.status)}

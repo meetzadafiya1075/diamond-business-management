@@ -27,7 +27,7 @@ export default function PolishedInventoryPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [loading, setLoading] = useState(true)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const { isPlanner, isAdmin } = useUser()
+  const { isPlanner, isSales, isAdmin } = useUser()
 
   // Form State
   const [stoneId, setStoneId] = useState("")
@@ -194,7 +194,7 @@ export default function PolishedInventoryPage() {
             </TableHeader>
             <TableBody>
               {filteredStones.length === 0 ? (
-                <TableRow><TableCell colSpan={7} className="text-center">No stones found.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={8} className="text-center">No stones found.</TableCell></TableRow>
               ) : filteredStones.map((stone) => (
                 <TableRow key={stone.id}>
                   <TableCell className="font-medium">{stone.stone_id}</TableCell>
@@ -214,9 +214,32 @@ export default function PolishedInventoryPage() {
                     ) : 'N/A'}
                   </TableCell>
                   <TableCell>
-                    <Badge variant={stone.status === 'READY' ? 'default' : 'secondary'}>
-                      {stone.status}
-                    </Badge>
+                    {(isPlanner || isSales || isAdmin) ? (
+                      <Select 
+                        value={stone.status} 
+                        onValueChange={async (val) => {
+                          try {
+                            await coreApi.updatePolishedStone(stone.id, { status: val })
+                            loadData()
+                          } catch (err) {
+                            alert("Failed to update status")
+                          }
+                        }}
+                      >
+                        <SelectTrigger className="w-[130px] h-8 text-xs">
+                          <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="READY">Ready to Sell</SelectItem>
+                          <SelectItem value="SOLD">Sold</SelectItem>
+                          <SelectItem value="IN_TRANSIT">In Transit</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <Badge variant={stone.status === 'READY' ? 'default' : 'secondary'}>
+                        {stone.status}
+                      </Badge>
+                    )}
                   </TableCell>
                   <TableCell className="text-right font-medium">
                     {symbol}{Number(stone.price_estimate || 0).toLocaleString()}
