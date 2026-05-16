@@ -38,32 +38,42 @@ export default function PlanningPage() {
 
   const loadData = async () => {
     try {
-      const [planData, parcelData, userData] = await Promise.all([
+      const [planData, parcelData, trackingData, userData] = await Promise.all([
         coreApi.getPlanningRecords(),
         coreApi.getRoughParcels(),
+        coreApi.getParcelTracking(),
         authApi.getUsers()
       ])
       
       const allPlans = Array.isArray(planData) ? planData : planData.results || []
       const allParcels = Array.isArray(parcelData) ? parcelData : parcelData.results || []
+      const allTracking = Array.isArray(trackingData) ? trackingData : trackingData.results || []
       const allUsers = Array.isArray(userData) ? userData : userData.results || []
+
+      console.log("Debug Planning Data:", { allPlans, allParcels, allTracking })
 
       setPlans(allPlans)
 
-      // Filter: 
-      // 1. Parcel must have status 'IN_PLANNING' (checked via nested tracking object)
-      // 2. Parcel must NOT already be in the planning records list
-      const plannedIds = allPlans.map((p: any) => p.parcel)
+      // IDs of parcels that already have a plan
+      const plannedIds = allPlans.map((p: any) => p.parcel.toString())
       
+      // IDs of parcels that are in planning status
+      const inPlanningIdsFromTracking = allTracking
+        .filter((t: any) => t.status === 'IN_PLANNING')
+        .map((t: any) => t.parcel.toString())
+
       const filteredParcels = allParcels.filter((p: any) => {
-        const isStatPlanning = p.tracking && p.tracking.status === 'IN_PLANNING'
-        const isNotPlannedYet = !plannedIds.includes(p.id)
+        const idStr = p.id.toString()
+        // Check nested tracking OR separate tracking list
+        const isStatPlanning = (p.tracking && p.tracking.status === 'IN_PLANNING') || inPlanningIdsFromTracking.includes(idStr)
+        const isNotPlannedYet = !plannedIds.includes(idStr)
+        
+        console.log(`Parcel ${p.parcel_name} (ID: ${idStr}):`, { isStatPlanning, isNotPlannedYet })
         return isStatPlanning && isNotPlannedYet
       })
       
+      console.log("Filtered Parcels:", filteredParcels)
       setParcels(filteredParcels)
-      
-      // Filter: Only Planners or Admins
       setPlanners(allUsers.filter((u: any) => u.role === 'PLANNER' || u.role === 'ADMIN'))
     } catch (err) {
       console.error("Failed to load planning data", err)
