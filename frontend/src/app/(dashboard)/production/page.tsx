@@ -88,6 +88,12 @@ export default function ProductionPage() {
       })
       
       setIsDialogOpen(false)
+      // Reset Form State
+      setSelectedParcel("")
+      setSelectedWorker("")
+      setSelectedStage("MARKING")
+      setNotes("")
+
       loadData()
     } catch (err: any) {
       console.error(err)
@@ -137,9 +143,9 @@ export default function ProductionPage() {
                       <SelectValue placeholder="Select worker" />
                     </SelectTrigger>
                     <SelectContent>
-                      {workers.filter(u => u.role?.toUpperCase() === 'WORKER').length === 0 ? (
-                        <SelectItem value="none" disabled>No workers found.</SelectItem>
-                      ) : workers.filter(u => u.role?.toUpperCase() === 'WORKER').map(u => (
+                      {workers.length === 0 ? (
+                        <SelectItem value="none" disabled>No users found.</SelectItem>
+                      ) : workers.map(u => (
                         <SelectItem key={u.id} value={u.id.toString()}>{u.username}</SelectItem>
                       ))}
                     </SelectContent>
