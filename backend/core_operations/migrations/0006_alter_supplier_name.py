@@ -3,6 +3,27 @@
 from django.db import migrations, models
 
 
+def remove_duplicate_suppliers(apps, schema_editor):
+    Supplier = apps.get_model('core_operations', 'Supplier')
+    RoughParcel = apps.get_model('core_operations', 'RoughParcel')
+    
+    from django.db.models import Count
+    # Find names that appear more than once
+    duplicate_names = Supplier.objects.values('name').annotate(name_count=Count('name')).filter(name_count__gt=1)
+    
+    for item in duplicate_names:
+        name = item['name']
+        # Get all suppliers with this name, ordered by ID (keep the oldest)
+        suppliers = list(Supplier.objects.filter(name=name).order_by('id'))
+        keep_supplier = suppliers[0]
+        duplicate_suppliers = suppliers[1:]
+        
+        for dup in duplicate_suppliers:
+            # Reassign all parcels from the duplicate supplier to the one we're keeping
+            RoughParcel.objects.filter(supplier=dup).update(supplier=keep_supplier)
+            # Delete the duplicate supplier
+            dup.delete()
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -10,6 +31,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunPython(remove_duplicate_suppliers),
         migrations.AlterField(
             model_name='supplier',
             name='name',
