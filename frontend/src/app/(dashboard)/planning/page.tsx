@@ -77,6 +77,12 @@ export default function PlanningPage() {
       })
       
       setIsDialogOpen(false)
+      // Reset Form State
+      setSelectedParcel("")
+      setSelectedPlanner("")
+      setYieldPercent("")
+      setNotes("")
+      
       loadData()
     } catch (err: any) {
       console.error(err)
