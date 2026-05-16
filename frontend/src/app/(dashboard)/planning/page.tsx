@@ -54,7 +54,7 @@ export default function PlanningPage() {
       const filteredParcels = allParcels.filter((p: any) => !plannedIds.includes(p.id.toString()))
       
       setParcels(filteredParcels)
-      setPlanners(allUsers.filter((u: any) => u.role === 'PLANNER' || u.role === 'ADMIN'))
+      setPlanners(allUsers)
     } catch (err) {
       console.error("Failed to load planning data", err)
     } finally {
