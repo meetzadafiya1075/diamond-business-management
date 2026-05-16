@@ -64,15 +64,15 @@ export default function PlanningPage() {
 
       const filteredParcels = allParcels.filter((p: any) => {
         const idStr = p.id.toString()
-        // Check nested tracking OR separate tracking list
-        const isStatPlanning = (p.tracking && p.tracking.status === 'IN_PLANNING') || inPlanningIdsFromTracking.includes(idStr)
+        // TEMPORARY: Removing status check to ensure you can see your parcels
+        // We only filter out parcels that already have a plan saved
         const isNotPlannedYet = !plannedIds.includes(idStr)
         
-        console.log(`Parcel ${p.parcel_name} (ID: ${idStr}):`, { isStatPlanning, isNotPlannedYet })
-        return isStatPlanning && isNotPlannedYet
+        console.log(`Parcel ${p.parcel_name} (ID: ${idStr}):`, { isNotPlannedYet })
+        return isNotPlannedYet
       })
       
-      console.log("Filtered Parcels:", filteredParcels)
+      console.log("Filtered Parcels (Unfiltered by status):", filteredParcels)
       setParcels(filteredParcels)
       setPlanners(allUsers.filter((u: any) => u.role === 'PLANNER' || u.role === 'ADMIN'))
     } catch (err) {
@@ -145,7 +145,7 @@ export default function PlanningPage() {
                         <SelectItem value="none" disabled>No parcels available. Add some in Rough Purchase.</SelectItem>
                       ) : parcels.map(p => (
                         <SelectItem key={p.id} value={p.id.toString()}>
-                          {p.parcel_name} ({p.carat_weight} ct)
+                          {p.parcel_name} ({p.carat_weight} ct) - {p.tracking?.status || 'No Status'}
                         </SelectItem>
                       ))}
                     </SelectContent>
