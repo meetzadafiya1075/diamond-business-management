@@ -16,12 +16,12 @@ from users.permissions import (
 class SupplierViewSet(viewsets.ModelViewSet):
     queryset = Supplier.objects.all()
     serializer_class = SupplierSerializer
-    permission_classes = [IsPlannerOrAdmin]
+    permission_classes = [IsProductionTeam]
 
 class RoughParcelViewSet(viewsets.ModelViewSet):
     queryset = RoughParcel.objects.all()
     serializer_class = RoughParcelSerializer
-    permission_classes = [IsWorkerOrAdmin]
+    permission_classes = [IsProductionTeam]
 
     def perform_create(self, serializer):
         parcel = serializer.save()
