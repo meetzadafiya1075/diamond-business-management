@@ -38,29 +38,29 @@ export default function PlanningPage() {
 
   const loadData = async () => {
     try {
-      const [planData, parcelData, trackingData, userData] = await Promise.all([
+      const [planData, parcelData, userData] = await Promise.all([
         coreApi.getPlanningRecords(),
         coreApi.getRoughParcels(),
-        coreApi.getParcelTracking(),
         authApi.getUsers()
       ])
       
       const allPlans = Array.isArray(planData) ? planData : planData.results || []
       const allParcels = Array.isArray(parcelData) ? parcelData : parcelData.results || []
-      const allTracking = Array.isArray(trackingData) ? trackingData : trackingData.results || []
       const allUsers = Array.isArray(userData) ? userData : userData.results || []
 
       setPlans(allPlans)
 
-      // Filter: Only parcels that have status 'IN_PLANNING' and AREN'T already in the planning table
+      // Filter: 
+      // 1. Parcel must have status 'IN_PLANNING' (checked via nested tracking object)
+      // 2. Parcel must NOT already be in the planning records list
       const plannedIds = allPlans.map((p: any) => p.parcel)
-      const inPlanningIds = allTracking
-        .filter((t: any) => t.status === 'IN_PLANNING')
-        .map((t: any) => t.parcel)
       
-      const filteredParcels = allParcels.filter((p: any) => 
-        inPlanningIds.includes(p.id) && !plannedIds.includes(p.id)
-      )
+      const filteredParcels = allParcels.filter((p: any) => {
+        const isStatPlanning = p.tracking && p.tracking.status === 'IN_PLANNING'
+        const isNotPlannedYet = !plannedIds.includes(p.id)
+        return isStatPlanning && isNotPlannedYet
+      })
+      
       setParcels(filteredParcels)
       
       // Filter: Only Planners or Admins
