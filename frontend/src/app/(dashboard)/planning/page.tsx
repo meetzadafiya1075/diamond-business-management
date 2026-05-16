@@ -53,12 +53,12 @@ export default function PlanningPage() {
       setPlans(allPlans)
 
       // Filter: Only parcels that have status 'IN_PLANNING' and AREN'T already in the planning table
-      const plannedIds = allPlans.map(p => p.parcel)
+      const plannedIds = allPlans.map((p: any) => p.parcel)
       const inPlanningIds = allTracking
-        .filter(t => t.status === 'IN_PLANNING')
-        .map(t => t.parcel)
+        .filter((t: any) => t.status === 'IN_PLANNING')
+        .map((t: any) => t.parcel)
       
-      const filteredParcels = allParcels.filter(p => 
+      const filteredParcels = allParcels.filter((p: any) => 
         inPlanningIds.includes(p.id) && !plannedIds.includes(p.id)
       )
       setParcels(filteredParcels)
@@ -75,7 +75,7 @@ export default function PlanningPage() {
   const handleAssignPlanning = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      const parcelObj = parcels.find(p => p.id.toString() === selectedParcel)
+      const parcelObj = parcels.find((p: any) => p.id.toString() === selectedParcel)
       const polishedCt = (parseFloat(parcelObj.carat_weight) * parseFloat(yieldPercent)) / 100
 
       await coreApi.createPlanningRecord({
