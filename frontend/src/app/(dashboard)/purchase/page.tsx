@@ -69,8 +69,14 @@ export default function RoughPurchasePage() {
       setNewSupplierName("")
       setIsSupplierDialogOpen(false)
       loadData()
-    } catch (err) {
-      alert("Failed to add supplier.")
+    } catch (err: any) {
+      console.error("Add supplier error:", err)
+      const errorMsg = err.message || ""
+      if (errorMsg.includes("already exists") || errorMsg.includes("unique")) {
+        alert("A supplier with this name already exists!")
+      } else {
+        alert("Failed to add supplier. Please check the name.")
+      }
     }
   }
 

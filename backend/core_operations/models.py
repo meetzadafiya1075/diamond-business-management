@@ -2,7 +2,7 @@ from django.db import models
 from users.models import User
 
 class Supplier(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     contact_person = models.CharField(max_length=255, blank=True, null=True)
     phone = models.CharField(max_length=50, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
