@@ -38,19 +38,33 @@ export default function PlanningPage() {
 
   const loadData = async () => {
     try {
-      const [planData, parcelData, userData] = await Promise.all([
+      const [planData, parcelData, trackingData, userData] = await Promise.all([
         coreApi.getPlanningRecords(),
         coreApi.getRoughParcels(),
+        coreApi.getParcelTracking(),
         authApi.getUsers()
       ])
       
-      // Handle both direct array and paginated results
-      setPlans(Array.isArray(planData) ? planData : planData.results || [])
-      setParcels(Array.isArray(parcelData) ? parcelData : parcelData.results || [])
-      
+      const allPlans = Array.isArray(planData) ? planData : planData.results || []
+      const allParcels = Array.isArray(parcelData) ? parcelData : parcelData.results || []
+      const allTracking = Array.isArray(trackingData) ? trackingData : trackingData.results || []
       const allUsers = Array.isArray(userData) ? userData : userData.results || []
-      // For now, allow any user to be a planner to avoid empty lists for new setups
-      setPlanners(allUsers)
+
+      setPlans(allPlans)
+
+      // Filter: Only parcels that have status 'IN_PLANNING' and AREN'T already in the planning table
+      const plannedIds = allPlans.map(p => p.parcel)
+      const inPlanningIds = allTracking
+        .filter(t => t.status === 'IN_PLANNING')
+        .map(t => t.parcel)
+      
+      const filteredParcels = allParcels.filter(p => 
+        inPlanningIds.includes(p.id) && !plannedIds.includes(p.id)
+      )
+      setParcels(filteredParcels)
+      
+      // Filter: Only Planners or Admins
+      setPlanners(allUsers.filter((u: any) => u.role === 'PLANNER' || u.role === 'ADMIN'))
     } catch (err) {
       console.error("Failed to load planning data", err)
     } finally {
