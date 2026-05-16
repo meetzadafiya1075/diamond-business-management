@@ -32,9 +32,4 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunPython(remove_duplicate_suppliers),
-        migrations.AlterField(
-            model_name='supplier',
-            name='name',
-            field=models.CharField(max_length=255, unique=True),
-        ),
     ]
